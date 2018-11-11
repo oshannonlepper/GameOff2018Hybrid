@@ -104,12 +104,23 @@ public class BattleCharacter
 	public int ID { get; set; }
 	public bool IsAIControlled = false;
 
+	private AttributesComponent _attributes;
 	private List<BattleAction> _actions;
 	private int _numActions = 0;
 
 	public BattleCharacter()
 	{
 		_actions = new List<BattleAction>();
+	}
+
+	public void SetAttributes(AttributesComponent inAttributes)
+	{
+		_attributes = inAttributes;
+	}
+
+	public void SetActions(List<BattleAction> inActions)
+	{
+		_actions = inActions;
 	}
 
 	public void AddAction(BattleAction action)
@@ -145,6 +156,11 @@ public class BattleCharacter
 	public override string ToString()
 	{
 		return Name;
+	} 
+
+	public float GetAttribute(string attribute)
+	{
+		return _attributes.GetValue(attribute);
 	}
 
 }
