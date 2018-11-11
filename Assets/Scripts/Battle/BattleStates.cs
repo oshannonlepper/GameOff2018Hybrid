@@ -60,6 +60,11 @@ public class BattleStateSelectAttack : BattleState
 
 		_currentCharacter = Context.GetCharacterByID(Context.GetCurrentTurnCharacterID());
 		_finishedChoosing = false;
+
+		if (!_currentCharacter.IsAIControlled)
+		{
+			PrintAttacks();
+		}
 	}
 
 	public override void OnStateExit()
@@ -108,18 +113,7 @@ public class BattleStateSelectAttack : BattleState
 
 			if (refresh)
 			{
-				string printString = "";
-				int numActions = _currentCharacter.GetNumActions();
-				for (int index = 0; index < numActions; ++index)
-				{
-					if (index == _currentSelection)
-					{
-						printString += "> ";
-					}
-					printString += _currentCharacter.GetActionLabel(index) + '\n';
-				}
-				printString += "\nChoose an action (up and down arrow keys).";
-				Debug.Log(printString);
+				PrintAttacks();
 			}
 
 			// confirm selection(s)
@@ -136,6 +130,22 @@ public class BattleStateSelectAttack : BattleState
 			Context.SetCurrentAction(_currentSelection);
 			Owner.RequestState("SelectTarget");
 		}
+	}
+
+	private void PrintAttacks()
+	{
+		string printString = "";
+		int numActions = _currentCharacter.GetNumActions();
+		for (int index = 0; index < numActions; ++index)
+		{
+			if (index == _currentSelection)
+			{
+				printString += "> ";
+			}
+			printString += _currentCharacter.GetActionLabel(index) + '\n';
+		}
+		Debug.Log(printString);
+		Debug.Log("Choose an action (up and down arrow keys).");
 	}
 
 }
@@ -166,6 +176,11 @@ public class BattleStateSelectTarget : BattleState
 		}
 
 		_finishedChoosing = false;
+
+		if (!_currentCharacter.IsAIControlled)
+		{
+			PrintTargets();
+		}
 	}
 
 	public override void OnStateExit()
@@ -214,19 +229,7 @@ public class BattleStateSelectTarget : BattleState
 
 			if (refresh)
 			{
-				string printString = "";
-				foreach (int ID in _characterIDPool)
-				{
-					BattleCharacter character = Context.GetCharacterByID(ID);
-
-					if (ID == _characterIDPool[_currentSelection])
-					{
-						printString += "> ";
-					}
-					printString += character.ToString() + '\n';
-				}
-				printString += "\nChoose a target (up and down arrow keys).";
-				Debug.Log(printString);
+				PrintTargets();
 			}
 
 			// confirm selection(s)
@@ -239,7 +242,7 @@ public class BattleStateSelectTarget : BattleState
 
 		if (_finishedChoosing)
 		{
-			Debug.Log("Selecting target = " + Context.GetCharacterByID(_characterIDPool[_currentSelection]));
+			Debug.Log("Selecting target = " + Context.GetCharacterByID(_characterIDPool[_currentSelection]).ToString());
 
 			// validate target ??
 
@@ -248,6 +251,30 @@ public class BattleStateSelectTarget : BattleState
 			Context.SetCurrentTarget(_characterIDPool[_currentSelection]);
 			Owner.RequestState("AttackAnimation");
 		}
+	}
+	
+	void PrintTargets()
+	{
+		string printString = "";
+		foreach (int ID in _characterIDPool)
+		{
+			BattleCharacter character = Context.GetCharacterByID(ID);
+
+			if (ID == _characterIDPool[_currentSelection])
+			{
+				printString += "> ";
+			}
+			printString += character.ToString();
+
+			if (ID == _currentCharacter.ID)
+			{
+				printString += " (Yourself)";
+			}
+
+			printString += '\n';
+		}
+		Debug.Log(printString);
+		Debug.Log("Choose a target (up and down arrow keys).");
 	}
 
 }
