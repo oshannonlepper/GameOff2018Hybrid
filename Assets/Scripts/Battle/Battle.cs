@@ -13,6 +13,7 @@ public class Battle
 		_battleStateMachine.RegisterState("Start", new BattleStateStart());
 		_battleStateMachine.RegisterState("SelectAttack", new BattleStateSelectAttack());
 		_battleStateMachine.RegisterState("SelectTarget", new BattleStateSelectTarget());
+		_battleStateMachine.RegisterState("ResolveAttack", new BattleStateResolveAttack());
 		_battleStateMachine.RegisterState("AttackAnimation", new BattleStateAttackAnimation());
 		_battleStateMachine.RegisterState("DetermineNextTurn", new BattleStateDetermineNextTurn());
 		_battleStateMachine.RegisterState("End", new BattleStateEnd());
@@ -24,35 +25,42 @@ public class Battle
 
 		BattleContext context = new BattleContext();
 
-		BattleCharacter charA = new BattleCharacter();
-		charA.Name = "Snake";
+		BattleCharacterInstance charA = new BattleCharacterInstance("Snake", 1, 30, 11, 23, 21);
+		charA.IsAIControlled = false;
 
-		BattleAction actionWriggle = new BattleAction();
+		BattleActionAttack actionWriggle = ScriptableObject.CreateInstance<BattleActionAttack>();// (0, 100);
+		actionWriggle.Init(0, 100);
 		actionWriggle.Label = "Wriggle";
 
-		BattleAction actionBite = new BattleAction();
+		BattleActionAttack actionBite = ScriptableObject.CreateInstance<BattleActionAttack>();// (50, 100);
+		actionBite.Init(50, 100);
 		actionBite.Label = "Bite";
 
-		BattleAction actionHiss = new BattleAction();
+		BattleActionAttack actionHiss = ScriptableObject.CreateInstance<BattleActionAttack>();// (0, 100);
+		actionHiss.Init(0, 100);
 		actionHiss.Label = "Hiss";
 
 		charA.AddAction(actionWriggle);
 		charA.AddAction(actionBite);
 		charA.AddAction(actionHiss);
 
-		BattleCharacter charB = new BattleCharacter();
+		BattleCharacterInstance charB = new BattleCharacterInstance("Bear", 4, 80, 20, 18, 14);
 		charB.Name = "Bear";
 
-		BattleAction actionRoar = new BattleAction();
+		BattleActionAttack actionRoar = ScriptableObject.CreateInstance<BattleActionAttack>();// (0, 100);
+		actionRoar.Init(0, 100);
 		actionRoar.Label = "Roar";
 
-		BattleAction actionSlash = new BattleAction();
+		BattleActionAttack actionSlash = ScriptableObject.CreateInstance<BattleActionAttack>();// (70, 50);
+		actionSlash.Init(70, 50);
 		actionSlash.Label = "Slash";
 
-		BattleAction actionStomp = new BattleAction();
+		BattleActionAttack actionStomp = ScriptableObject.CreateInstance<BattleActionAttack>();// (60, 70);
+		actionStomp.Init(60, 70);
 		actionStomp.Label = "Stomp";
 
-		BattleAction actionSleep = new BattleAction();
+		BattleActionAttack actionSleep = ScriptableObject.CreateInstance<BattleActionAttack>();// (0, 100);
+		actionSleep.Init(0, 100);
 		actionSleep.Label = "Sleep";
 
 		charB.AddAction(actionRoar);

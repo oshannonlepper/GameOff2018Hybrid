@@ -8,9 +8,14 @@ using UnityEngine;
  * Component for holding a named list of attributes, where an attribute is a value comprised
  * of multiple contributions.
  */
-public class AttributesComponent : MonoBehaviour
+public class AttributesContainer
 {
 	private Dictionary<string, Attribute> _contributionMap;
+
+	public AttributesContainer()
+	{
+		_contributionMap = new Dictionary<string, Attribute>();
+	}
 	
 	/** AddContribution - add a contribution to the given attribute. */
 	public void AddContribution(string attribute, string contributionCategory, AttributeContributionType contributionType, float value)
@@ -33,9 +38,9 @@ public class AttributesComponent : MonoBehaviour
 	}
 
 	/** GetValue - given an attribute name, look for it in the map and return its value if it exists, otherwise return 0. */
-	public float GetValue(string attribute)
+	public float GetValue(string attribute, float defaultValue = 0.0f)
 	{
-		return _contributionMap.ContainsKey(attribute) ? _contributionMap[attribute].GetValue() : 0.0f;
+		return _contributionMap.ContainsKey(attribute) ? _contributionMap[attribute].GetValue() : defaultValue;
 	}
 
 }
@@ -136,4 +141,14 @@ public class AttributeContribution
 	public string ContributionCategory { get; set; }
 	public AttributeContributionType ContributeType { get; set; }
 	public float Value { get; set; }
+}
+
+/** Struct to be used for user-defined attribute contributions in editor. */
+[System.Serializable]
+public struct AttributeData
+{
+	[SerializeField] public string Attribute { get; set; }
+	[SerializeField] public string Category { get; set; }
+	[SerializeField] public AttributeContributionType ContributionType { get; set; }
+	[SerializeField] public float Value { get; set; }
 }

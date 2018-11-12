@@ -50,7 +50,7 @@ public class BattleStateStart : BattleState
 public class BattleStateSelectAttack : BattleState
 {
 
-	private BattleCharacter _currentCharacter;
+	private BattleCharacterInstance _currentCharacter;
 	private int _currentSelection = 0;
 	private bool _finishedChoosing = false;
 
@@ -83,6 +83,8 @@ public class BattleStateSelectAttack : BattleState
 		if (_currentCharacter.IsAIControlled)
 		{
 			// do something crazy to pick a good result
+			int numActions = _currentCharacter.GetNumActions();
+			_currentSelection = Random.Range(0, numActions - 1);
 			_finishedChoosing = true;
 		}
 		else
@@ -153,7 +155,7 @@ public class BattleStateSelectAttack : BattleState
 public class BattleStateSelectTarget : BattleState
 {
 	private List<int> _characterIDPool;
-	private BattleCharacter _currentCharacter;
+	private BattleCharacterInstance _currentCharacter;
 	private int _currentSelection = 0;
 	private bool _finishedChoosing = false;
 	private int _numTargets = 0;
@@ -201,6 +203,7 @@ public class BattleStateSelectTarget : BattleState
 		if (_currentCharacter.IsAIControlled)
 		{
 			// do something crazy to pick a good result
+			_currentSelection = Random.Range(0, _numTargets - 1); // please don't hit yourself please
 			_finishedChoosing = true;
 		}
 		else
@@ -249,7 +252,7 @@ public class BattleStateSelectTarget : BattleState
 			// if ok, confirm and move on to attacks
 
 			Context.SetCurrentTarget(_characterIDPool[_currentSelection]);
-			Owner.RequestState("AttackAnimation");
+			Owner.RequestState("ResolveAttack");
 		}
 	}
 	
@@ -258,7 +261,7 @@ public class BattleStateSelectTarget : BattleState
 		string printString = "";
 		foreach (int ID in _characterIDPool)
 		{
-			BattleCharacter character = Context.GetCharacterByID(ID);
+			BattleCharacterInstance character = Context.GetCharacterByID(ID);
 
 			if (ID == _characterIDPool[_currentSelection])
 			{
@@ -277,6 +280,49 @@ public class BattleStateSelectTarget : BattleState
 		Debug.Log("Choose a target (up and down arrow keys).");
 	}
 
+}
+
+public class BattleStateResolveAttack : BattleState
+{
+
+	private bool _finishedResolving = false;
+
+	private BattleCharacterInstance _currentCharacter;
+	private BattleCharacterInstance _targetCharacter;
+	private BattleAction _currentAction;
+
+	public override void OnStateEnter()
+	{
+		base.OnStateEnter();
+
+		_finishedResolving = false;
+		_currentCharacter = Context.GetCharacterByID(Context.GetCurrentTurnCharacterID());
+		_targetCharacter = Context.GetCharacterByID(Context.GetCurrentTarget());
+		_currentAction = Context.GetCurrentAction();
+		_currentAction.OnBeginAction(_currentCharacter, _targetCharacter);
+	}
+
+	public override void OnStateExit()
+	{
+		base.OnStateExit();
+
+		_currentAction.OnEndAction(_currentCharacter, _targetCharacter);
+	}
+
+	public override void UpdateState(float deltaTime)
+	{
+		base.UpdateState(deltaTime);
+
+		if (_currentAction.ResolveAction())
+		{
+			_finishedResolving = true;
+		}
+
+		if (_finishedResolving)
+		{
+			Owner.RequestState("AttackAnimation");
+		}
+	}
 }
 
 public class BattleStateAttackAnimation : BattleState
@@ -329,7 +375,19 @@ public class BattleStateDetermineNextTurn : BattleState
 	{
 		base.OnStateEnter();
 
-		_nextTurn = _battleTurnCalculator.GetNextTurn();
+		_battleTurnCalculator.TryInit(Context);
+
+		// mark any fallen characters as out
+
+		for (int characterID = 0; characterID < Context.GetNumCharacters(); ++characterID)
+		{
+			if (Context.GetCharacterByID(characterID).HP <= 0)
+			{
+				Context.MarkCharacterOut(characterID);
+			}
+		}
+
+		_nextTurn = _battleTurnCalculator.GetNextTurn(Context);
 	}
 
 	public override void UpdateState(float deltaTime)
@@ -337,7 +395,17 @@ public class BattleStateDetermineNextTurn : BattleState
 		base.UpdateState(deltaTime);
 
 		Context.SetCurrentCharacter(_nextTurn);
-		Owner.RequestState("SelectAttack");
+		
+		if (Context.GetActiveCharacterCount() <= 1)
+		{
+			// if we are down to one (or 0) character, end the battle
+			Owner.RequestState("End");
+		}
+		else
+		{
+			// if not, go to select attack phase
+			Owner.RequestState("SelectAttack");
+		}
 	}
 
 }
@@ -349,7 +417,7 @@ public class BattleStateEnd : BattleState
 	{
 		base.OnStateEnter();
 
-		Debug.Log("Battle ended.");
+		Debug.Log("Battle ended, " + Context.GetCharacterByID(Context.GetCurrentTurnCharacterID()).Name + " was victorious.");
 	}
 
 }
