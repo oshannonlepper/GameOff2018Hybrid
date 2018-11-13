@@ -65,17 +65,23 @@ public class OverworldGameState : GameState
 public class BattleGameState : GameState
 {
 	private Battle _battle;
+	private List<BattleCharacterData> _battleCharacters;
 
 	public BattleGameState()
 	{
 		_battle = new Battle();
 	}
 
+	public void SetCharacters(List<BattleCharacterData> inCharacters)
+	{
+		_battleCharacters = inCharacters;
+	}
+
 	public override void OnStateEnter()
 	{
 		base.OnStateEnter();
 
-		_battle.BeginEncounter();
+		_battle.BeginEncounter(_battleCharacters);
 	}
 
 	public override void UpdateState(float deltaTime)

@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class BattleComponent : MonoBehaviour {
 
+	[SerializeField] private List<BattleCharacterData> _testData;
+
 	private Battle _battle;
 
 	private void Awake()
 	{
 		_battle = new Battle();
-		_battle.BeginEncounter();
+		_battle.BeginEncounter(_testData);
 	}
 
 	private void Update()

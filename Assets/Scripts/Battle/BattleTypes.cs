@@ -130,7 +130,7 @@ public class BattleContext
 		return null;
 	}
 
-	public BattleAction GetCurrentAction()
+	public BattleActionInstance GetCurrentAction()
 	{
 		return GetCharacterByID(_currentTurn).GetAction(_currentAction);
 	}
@@ -181,23 +181,6 @@ public class BattleContext
 
 }
 
-[System.Serializable]
-public class BattleCharacterData : ScriptableObject
-{
-	public string Name { get; set; }
-	public int Level { get; set; }
-	public int HP { get; set; }
-	public int Attack { get; set; }
-	public int Defense { get; set; }
-	public int Speed { get; set; }
-
-	public BattleCharacterInstance CreateInstance()
-	{
-		return new BattleCharacterInstance(Name, Level, HP, Attack, Defense, Speed);
-	}
-
-}
-
 public class BattleCharacterInstance
 {
 	public string Name { get; set; }
@@ -206,7 +189,7 @@ public class BattleCharacterInstance
 
 	private int _currentHP = 0;
 	private AttributesContainer _attributes;
-	private List<BattleAction> _actions;
+	private List<BattleActionInstance> _actions;
 	private int _numActions = 0;
 
 	public int HP
@@ -217,19 +200,25 @@ public class BattleCharacterInstance
 		}
 	}
 
-	public BattleCharacterInstance(string inName, int lvl, int hp, int atk, int def, int spd)
+	public BattleCharacterInstance(BattleCharacterData data)
 	{
-		Name = inName;
+		Name = data.Name;
 
 		_attributes = new AttributesContainer();
-		_attributes.AddContribution("Level", "Level", AttributeContributionType.Override, lvl);
-		_attributes.AddContribution("MaxHP", "BaseValue", AttributeContributionType.Override, hp);
-		_attributes.AddContribution("Attack", "BaseValue", AttributeContributionType.Override, atk);
-		_attributes.AddContribution("Defense", "BaseValue", AttributeContributionType.Override, def);
-		_attributes.AddContribution("Speed", "BaseValue", AttributeContributionType.Override, spd);
-		_currentHP = Mathf.RoundToInt(_attributes.GetValue("MaxHP"));
+		_attributes.AddContribution("Level", "Level", AttributeContributionType.Additive, data.Level);
+		_attributes.AddContribution("MaxHP", "BaseValue", AttributeContributionType.Additive, data.HP);
+		_attributes.AddContribution("Attack", "BaseValue", AttributeContributionType.Additive, data.Attack);
+		_attributes.AddContribution("Defense", "BaseValue", AttributeContributionType.Additive, data.Defense);
+		_attributes.AddContribution("Speed", "BaseValue", AttributeContributionType.Additive, data.Speed);
+		_currentHP = _attributes.GetValueAsInt("MaxHP");
 
-		_actions = new List<BattleAction>();
+		_actions = new List<BattleActionInstance>();
+		foreach (BattleActionData action in data.Actions)
+		{
+			_actions.Add(action.CreateInstance());
+		}
+		_numActions = _actions.Count;
+
 	}
 
 	public AttributesContainer GetAttributes()
@@ -237,12 +226,12 @@ public class BattleCharacterInstance
 		return _attributes;
 	}
 
-	public void SetActions(List<BattleAction> inActions)
+	public void SetActions(List<BattleActionInstance> inActions)
 	{
 		_actions = inActions;
 	}
 
-	public void AddAction(BattleAction action)
+	public void AddAction(BattleActionInstance action)
 	{
 		_actions.Add(action);
 		++_numActions;
@@ -253,7 +242,7 @@ public class BattleCharacterInstance
 		return _numActions;
 	}
 
-	public BattleAction GetAction(int index)
+	public BattleActionInstance GetAction(int index)
 	{
 		if (index < 0 || index >= GetNumActions())
 		{
@@ -268,7 +257,7 @@ public class BattleCharacterInstance
 
 	public string GetActionLabel(int index)
 	{
-		BattleAction action = GetAction(index);
+		BattleActionInstance action = GetAction(index);
 		return action == null ? "[ Null Action ]" : action.ToString();
 	}
 
@@ -295,150 +284,4 @@ public class BattleCharacterInstance
 		return _currentHP <= 0;
 	}
 
-}
-
-[System.Serializable]
-public class BattleAction : ScriptableObject
-{
-	[SerializeField] public string Label { get; set; }
-
-	public override string ToString()
-	{
-		return Label;
-	}
-
-	public virtual void OnBeginAction(BattleCharacterInstance user, BattleCharacterInstance target)
-	{
-	}
-
-	public virtual void OnEndAction(BattleCharacterInstance user, BattleCharacterInstance target)
-	{
-
-	}
-
-	public virtual bool ResolveAction()
-	{
-		return true;
-	}
-
-}
-
-[System.Serializable]
-[CreateAssetMenu(menuName = "Actions/Basic Attack")]
-public class BattleActionAttack : BattleAction
-{
-
-	[SerializeField] private int _power = 40;
-	[SerializeField] private int _accuracy = 100;
-	[SerializeField] private List<AttributeData> _customUserAttackAttributes;
-	[SerializeField] private List<AttributeData> _customTargetAttackAttributes;
-	[SerializeField] private List<AttributeData> _customUserBattleAttributes;
-	[SerializeField] private List<AttributeData> _customTargetBattleAttributes;
-
-	private BattleCharacterInstance _currentTarget = null;
-	private AttributesContainer _userAttributes = null;
-	private AttributesContainer _targetAttributes = null;
-
-	public BattleActionAttack()
-	{
-		Label = "Attack";
-	}
-
-	public void Init(int power, int accuracy)
-	{
-		_power = power;
-		_accuracy = accuracy;
-
-		_customUserAttackAttributes = new List<AttributeData>();
-		_customTargetAttackAttributes = new List<AttributeData>();
-		_customUserBattleAttributes = new List<AttributeData>();
-		_customTargetBattleAttributes = new List<AttributeData>();
-	}
-
-	public override void OnBeginAction(BattleCharacterInstance user, BattleCharacterInstance target)
-	{
-		_userAttributes = user.GetAttributes();
-		_currentTarget = target;
-		_targetAttributes = _currentTarget.GetAttributes();
-
-		// add the power and accuracy attributes to the user
-
-		_userAttributes.AddContribution("Power", "User"+Label, AttributeContributionType.Additive, _power);
-		_userAttributes.AddContribution("Accuracy", "User"+Label, AttributeContributionType.Additive, _accuracy);
-
-		// custom attributes applied to the user of the attack, these attributes will last only for the duration of the attack.
-
-		foreach (var contribution in _customUserAttackAttributes)
-		{
-			_userAttributes.AddContribution(contribution.Attribute, "User"+contribution.Category, contribution.ContributionType, contribution.Value);
-		}
-
-		// custom attributes applied to the target of the attack, these attributes will last only for the duration of the attack.
-
-		foreach (var contribution in _customTargetAttackAttributes)
-		{
-			_targetAttributes.AddContribution(contribution.Attribute, "Target"+contribution.Category, contribution.ContributionType, contribution.Value);
-		}
-
-		// custom attributes to be removed at the end of battle.
-
-		foreach (var contribution in _customUserBattleAttributes)
-		{
-			_userAttributes.AddContribution(contribution.Attribute, "BattleStat", contribution.ContributionType, contribution.Value);
-		}
-
-		foreach (var contribution in _customTargetBattleAttributes)
-		{
-			_targetAttributes.AddContribution(contribution.Attribute, "BattleStat", contribution.ContributionType, contribution.Value);
-		}
-	}
-
-	public override void OnEndAction(BattleCharacterInstance user, BattleCharacterInstance target)
-	{
-		// remove the power and accuracy attributes from the user
-
-		_userAttributes.RemoveContribution("Power", Label);
-		_userAttributes.RemoveContribution("Accuracy", Label);
-
-		// remove the custom attack attributes, as we are now done with the attack and they should no longer apply
-
-		foreach (var contribution in _customUserAttackAttributes)
-		{
-			_userAttributes.RemoveContribution(contribution.Attribute, "User"+contribution.Category);
-		}
-
-		foreach (var contribution in _customTargetAttackAttributes)
-		{
-			_targetAttributes.RemoveContribution(contribution.Attribute, "Target"+contribution.Category);
-		}
-
-		// the battle stats will be removed by removing all "BattleStat" contributions at the end of battle.
-
-	}
-
-	public override bool ResolveAction()
-	{
-		float Attack = _userAttributes.GetValue("Attack");
-		float Defense = _targetAttributes.GetValue("Defense", 1.0f);
-		float AttackDefenseRatio = Attack / Defense;
-
-		float UserLevel = _userAttributes.GetValue("Level", 1.0f);
-		float LevelModifier = ((2 * UserLevel) / 5.0f) + 2;
-
-		float Power = _userAttributes.GetValue("Power");
-
-		Debug.LogWarning("Attack = " + Attack + ", Defense = " + Defense + ", ADR = " + AttackDefenseRatio + ", Level = " + UserLevel + ", LevelModifier = " + LevelModifier);
-
-		// this is the pokemon attack formula for now
-		// there's potential for adding elemental strengths/weaknesses
-		// but for now this is a game about hybridising animals, so
-		// for the most part their attacks and moves are intended to be
-		// grounded in reality (assume everything is normal type)
-		int damage = Mathf.RoundToInt((LevelModifier * Power * AttackDefenseRatio / 50.0f) + 2);
-		_currentTarget.TakeDamage(damage);
-
-		Debug.Log(_currentTarget.Name + " took " + damage + " damage, it is now at " + _currentTarget.HP + "/" + ((int)_currentTarget.GetAttributeValue("MaxHP"))+"HP");
-
-		return true;
-	}
 }

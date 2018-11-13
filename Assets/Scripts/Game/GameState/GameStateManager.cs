@@ -7,12 +7,17 @@ public class GameStateManager : MonoBehaviour
 {
 	private StateMachine _gameStateMachine;
 
+	[SerializeField] private List<BattleCharacterData> _battleCharacterDatas;
+
 	private void Awake()
 	{
+		BattleGameState battleGameState = new BattleGameState();
+		battleGameState.SetCharacters(_battleCharacterDatas);
+
 		_gameStateMachine = new StateMachine();
 		_gameStateMachine.RegisterState("MainMenu", new MainMenuGameState());
 		_gameStateMachine.RegisterState("Overworld", new OverworldGameState());
-		_gameStateMachine.RegisterState("Battle", new BattleGameState());
+		_gameStateMachine.RegisterState("Battle", battleGameState);
 		_gameStateMachine.RegisterState("BattleResult", new BattleResultGameState());
 
 		_gameStateMachine.RequestState("MainMenu");

@@ -381,6 +381,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b641f1e6627a7c49849cccf22728ead, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _battleCharacterDatas:
+  - {fileID: 11400000, guid: 308ec04d5cfb1f243a076cc48ae65d3a, type: 2}
+  - {fileID: 11400000, guid: 6a37862b07eb20f4ca06cefb74b018f5, type: 2}
 --- !u!4 &615050452
 Transform:
   m_ObjectHideFlags: 0

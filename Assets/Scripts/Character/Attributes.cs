@@ -24,8 +24,12 @@ public class AttributesContainer
 		{
 			_contributionMap[attribute] = new Attribute();
 		}
-		
 		_contributionMap[attribute].AddContribution(contributionCategory, contributionType, value);
+	}
+
+	public void AddContribution(string attribute, string contributionCategory, AttributeContributionType contributionType, int value)
+	{
+		AddContribution(attribute, contributionCategory, contributionType, 1.0f * value);
 	}
 
 	/** RemoveContribution - remove all contributions from the given attribute that match the given contributionCategory. */
@@ -43,6 +47,11 @@ public class AttributesContainer
 		return _contributionMap.ContainsKey(attribute) ? _contributionMap[attribute].GetValue() : defaultValue;
 	}
 
+	public int GetValueAsInt(string attribute, int defaultValue = 0)
+	{
+		return _contributionMap.ContainsKey(attribute) ? Mathf.RoundToInt(_contributionMap[attribute].GetValue()) : defaultValue;
+	}
+
 }
 
 /**
@@ -54,7 +63,7 @@ public class Attribute
 {
 	private List<AttributeContribution> _contributionList;
 	private float _cachedAdds = 0.0f;
-	private float _cachedMultiplies = 0.0f;
+	private float _cachedMultiplies = 1.0f;
 	private float _cachedOverride = 0.0f;
 	
 	public Attribute()
@@ -147,8 +156,8 @@ public class AttributeContribution
 [System.Serializable]
 public struct AttributeData
 {
-	[SerializeField] public string Attribute { get; set; }
-	[SerializeField] public string Category { get; set; }
-	[SerializeField] public AttributeContributionType ContributionType { get; set; }
-	[SerializeField] public float Value { get; set; }
+	[SerializeField] public string Attribute;
+	[SerializeField] public string Category;
+	[SerializeField] public AttributeContributionType ContributionType;
+	[SerializeField] public float Value;
 }

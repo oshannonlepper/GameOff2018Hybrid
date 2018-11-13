@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09602ec661ec0ad44a388e09725d3557, type: 3}
+  m_Name: Snake
+  m_EditorClassIdentifier: 
+  Name: Snake
+  Level: 1
+  HP: 30
+  Attack: 12
+  Defense: 20
+  Speed: 28
+  Actions:
+  - {fileID: 11400000, guid: 3650a0d71af915b46b98f7507b4c024f, type: 2}
+  - {fileID: 11400000, guid: 0c5aea32a450c0646bd4a250f9cd93d1, type: 2}
+  - {fileID: 11400000, guid: 56bfb80450fbe7249b58c46329aaace3, type: 2}

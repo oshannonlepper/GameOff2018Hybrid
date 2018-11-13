@@ -84,7 +84,7 @@ public class BattleStateSelectAttack : BattleState
 		{
 			// do something crazy to pick a good result
 			int numActions = _currentCharacter.GetNumActions();
-			_currentSelection = Random.Range(0, numActions - 1);
+			_currentSelection = Random.Range(0, numActions);
 			_finishedChoosing = true;
 		}
 		else
@@ -202,8 +202,9 @@ public class BattleStateSelectTarget : BattleState
 
 		if (_currentCharacter.IsAIControlled)
 		{
+			List<int> targets = _characterIDPool.FindAll(x => x != _currentCharacter.ID);
 			// do something crazy to pick a good result
-			_currentSelection = Random.Range(0, _numTargets - 1); // please don't hit yourself please
+			_currentSelection = targets[Random.Range(0, targets.Count)]; // please don't hit yourself please
 			_finishedChoosing = true;
 		}
 		else
@@ -289,7 +290,7 @@ public class BattleStateResolveAttack : BattleState
 
 	private BattleCharacterInstance _currentCharacter;
 	private BattleCharacterInstance _targetCharacter;
-	private BattleAction _currentAction;
+	private BattleActionInstance _currentAction;
 
 	public override void OnStateEnter()
 	{

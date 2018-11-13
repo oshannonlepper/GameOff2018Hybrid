@@ -19,58 +19,18 @@ public class Battle
 		_battleStateMachine.RegisterState("End", new BattleStateEnd());
 	}
 
-	public void BeginEncounter(/* TODO - params, probably want participants */)
+	public void BeginEncounter(List<BattleCharacterData> participants)
 	{
 		_battleStateMachine.OnStateChanged += _battleStateMachine_OnStateChanged;
 
 		BattleContext context = new BattleContext();
 
-		BattleCharacterInstance charA = new BattleCharacterInstance("Snake", 1, 30, 11, 23, 21);
-		charA.IsAIControlled = false;
-
-		BattleActionAttack actionWriggle = ScriptableObject.CreateInstance<BattleActionAttack>();// (0, 100);
-		actionWriggle.Init(0, 100);
-		actionWriggle.Label = "Wriggle";
-
-		BattleActionAttack actionBite = ScriptableObject.CreateInstance<BattleActionAttack>();// (50, 100);
-		actionBite.Init(50, 100);
-		actionBite.Label = "Bite";
-
-		BattleActionAttack actionHiss = ScriptableObject.CreateInstance<BattleActionAttack>();// (0, 100);
-		actionHiss.Init(0, 100);
-		actionHiss.Label = "Hiss";
-
-		charA.AddAction(actionWriggle);
-		charA.AddAction(actionBite);
-		charA.AddAction(actionHiss);
-
-		BattleCharacterInstance charB = new BattleCharacterInstance("Bear", 4, 80, 20, 18, 14);
-		charB.Name = "Bear";
-
-		BattleActionAttack actionRoar = ScriptableObject.CreateInstance<BattleActionAttack>();// (0, 100);
-		actionRoar.Init(0, 100);
-		actionRoar.Label = "Roar";
-
-		BattleActionAttack actionSlash = ScriptableObject.CreateInstance<BattleActionAttack>();// (70, 50);
-		actionSlash.Init(70, 50);
-		actionSlash.Label = "Slash";
-
-		BattleActionAttack actionStomp = ScriptableObject.CreateInstance<BattleActionAttack>();// (60, 70);
-		actionStomp.Init(60, 70);
-		actionStomp.Label = "Stomp";
-
-		BattleActionAttack actionSleep = ScriptableObject.CreateInstance<BattleActionAttack>();// (0, 100);
-		actionSleep.Init(0, 100);
-		actionSleep.Label = "Sleep";
-
-		charB.AddAction(actionRoar);
-		charB.AddAction(actionSlash);
-		charB.AddAction(actionStomp);
-		charB.AddAction(actionSleep);
-
-		context.AddCharacter(charA);
-		context.AddCharacter(charB);
-
+		foreach (BattleCharacterData data in participants)
+		{
+			BattleCharacterInstance instance = new BattleCharacterInstance(data);
+			context.AddCharacter(instance);
+		}
+		
 		_battleStateMachine.SetContext(context);
 		_battleStateMachine.RequestState("Start");
 	}
