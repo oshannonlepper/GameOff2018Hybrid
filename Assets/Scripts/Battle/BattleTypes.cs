@@ -45,7 +45,7 @@ public class BattleTurnCalculator
 					continue;
 				}
 
-				_characterSpeedValues[characterID] -= character.GetAttributeValue("Speed");
+				_characterSpeedValues[characterID] -= character.GetSpeed();
 				if (_characterSpeedValues[characterID] <= 0.0f)
 				{
 					_characterSpeedValues[characterID] += _turnTotal;
@@ -67,7 +67,7 @@ public class BattleTurnCalculator
 			// only count non-out characters for the turn total
 			if (character.HP > 0)
 			{
-				_turnTotal += character.GetAttributeValue("Speed");
+				_turnTotal += character.GetSpeed();
 			}
 		}
 	}
@@ -183,6 +183,8 @@ public class BattleContext
 
 public class BattleCharacterInstance
 {
+	private float[] _modifiers = { 0.25f, 0.28f, 0.33f, 0.4f, 0.5f, 1.0f, 1.5f, 2.0f, 2.5f, 3.0f, 3.5f, 4.0f };
+
 	public string Name { get; set; }
 	public int ID { get; set; }
 	public bool IsAIControlled = true;
@@ -264,17 +266,48 @@ public class BattleCharacterInstance
 	public override string ToString()
 	{
 		return Name;
-	} 
+	}
 
-	public float GetAttributeValue(string attribute)
+	public float GetAttack()
+	{
+		return GetStat("Attack");
+	}
+
+	public float GetDefense()
+	{
+		return GetStat("Defense");
+	}
+
+	public float GetSpeed()
+	{
+		return GetStat("Speed");
+	}
+
+	public int GetMaxHP()
+	{
+		return Mathf.RoundToInt(GetAttributeValue("MaxHP"));
+	}
+
+	private float GetStat(string attributeLabel)
+	{
+		return GetAttributeValue(attributeLabel) * GetModifier(attributeLabel);
+	}
+
+	private float GetModifier(string attribute)
+	{
+		int modifier = _attributes.GetValueAsInt(attribute + "Modifier");
+		return _modifiers[Mathf.Clamp(modifier + 5, 0, _modifiers.Length-1)];
+	}
+
+	private float GetAttributeValue(string attribute, float defaultValue = 0.0f)
 	{
 		if (_attributes == null)
 		{
 			Debug.LogError("Need to set attributes first.");
-			return 0.0f;
+			return defaultValue;
 		}
 
-		return _attributes.GetValue(attribute);
+		return _attributes.GetValue(attribute, defaultValue);
 	}
 
 	/** Reduce the character's health by the given damage value, return true if their health is <= 0, making this a fatal attack. */

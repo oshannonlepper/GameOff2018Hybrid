@@ -19,7 +19,7 @@ MonoBehaviour:
   CustomTargetAttackAttributes: []
   CustomUserBattleAttributes: []
   CustomTargetBattleAttributes:
-  - Attribute: Defense
+  - Attribute: DefenseModifier
     Category: 
     ContributionType: 0
     Value: -2

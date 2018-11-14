@@ -7,6 +7,7 @@ public class BattleActionInstanceAttack : BattleActionInstance
 
 	[SerializeField] private BattleActionDataAttack _data;
 
+	private BattleCharacterInstance _currentUser = null;
 	private BattleCharacterInstance _currentTarget = null;
 	private AttributesContainer _userAttributes = null;
 	private AttributesContainer _targetAttributes = null;
@@ -18,6 +19,7 @@ public class BattleActionInstanceAttack : BattleActionInstance
 
 	public override void OnBeginAction(BattleCharacterInstance user, BattleCharacterInstance target)
 	{
+		_currentUser = user;
 		_userAttributes = user.GetAttributes();
 		_currentTarget = target;
 		_targetAttributes = _currentTarget.GetAttributes();
@@ -101,8 +103,8 @@ public class BattleActionInstanceAttack : BattleActionInstance
 	{
 		if (_data.DamageOpponent)
 		{
-			float Attack = _userAttributes.GetValue("Attack");
-			float Defense = _targetAttributes.GetValue("Defense", 1.0f);
+			float Attack = _currentUser.GetAttack();
+			float Defense = _currentTarget.GetDefense();
 			float AttackDefenseRatio = Attack / Defense;
 
 			float UserLevel = _userAttributes.GetValue("Level", 1.0f);
@@ -120,7 +122,7 @@ public class BattleActionInstanceAttack : BattleActionInstance
 			int damage = Mathf.RoundToInt((LevelModifier * Power * AttackDefenseRatio / 50.0f) + 2.0f);
 			_currentTarget.TakeDamage(damage);
 
-			Debug.Log(_currentTarget.Name + " took " + damage + " damage, it is now at " + _currentTarget.HP + "/" + ((int)_currentTarget.GetAttributeValue("MaxHP")) + "HP");
+			Debug.Log(_currentTarget.Name + " took " + damage + " damage, it is now at " + _currentTarget.HP + "/" + _currentTarget.GetMaxHP() + "HP");
 		}
 
 		return true;
