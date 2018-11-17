@@ -11,12 +11,15 @@ public class BattleState : State
 	public override void OnRegistered()
 	{
 		base.OnRegistered();
-		(Owner as BattleStateMachine).OnSetContext += BattleState_OnContextUpdated;
+		BattleStateMachine.OnSetContext += BattleState_OnContextUpdated;
 	}
 
-	private void BattleState_OnContextUpdated(BattleContext context)
+	private void BattleState_OnContextUpdated(BattleStateMachine machine, BattleContext context)
 	{
-		Context = context;
+		if (machine == Owner)
+		{
+			Context = context;
+		}
 	}
 
 	public override void OnStateEnter()

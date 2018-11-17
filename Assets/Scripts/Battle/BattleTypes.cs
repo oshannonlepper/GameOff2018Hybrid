@@ -183,6 +183,9 @@ public class BattleContext
 
 public class BattleCharacterInstance
 {
+	public delegate void HealthChangeEvent(int oldHP, int newHP);
+	public event HealthChangeEvent OnHealthChange;
+
 	private float[] _modifiers = { 0.25f, 0.28f, 0.33f, 0.4f, 0.5f, 1.0f, 1.5f, 2.0f, 2.5f, 3.0f, 3.5f, 4.0f };
 
 	public string Name { get; set; }
@@ -313,7 +316,14 @@ public class BattleCharacterInstance
 	/** Reduce the character's health by the given damage value, return true if their health is <= 0, making this a fatal attack. */
 	public bool TakeDamage(int damage)
 	{
+		int oldHP = _currentHP;
 		_currentHP -= damage;
+
+		if (OnHealthChange != null)
+		{
+			OnHealthChange(oldHP, _currentHP);
+		}
+
 		return _currentHP <= 0;
 	}
 

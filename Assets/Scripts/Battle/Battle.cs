@@ -58,8 +58,8 @@ public class Battle
 public class BattleStateMachine : StateMachine
 {
 
-	public delegate void BattleStateMachineEvent(BattleContext context);
-	public event BattleStateMachineEvent OnSetContext;
+	public delegate void BattleStateMachineEvent(BattleStateMachine machine, BattleContext context);
+	public static event BattleStateMachineEvent OnSetContext;
 
 	private BattleContext _context;
 
@@ -68,7 +68,7 @@ public class BattleStateMachine : StateMachine
 		_context = inContext;
 		if (OnSetContext != null)
 		{
-			OnSetContext(_context);
+			OnSetContext(this, _context);
 		}
 	}
 
