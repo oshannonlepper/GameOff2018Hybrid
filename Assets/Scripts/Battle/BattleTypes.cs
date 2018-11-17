@@ -318,6 +318,7 @@ public class BattleCharacterInstance
 	{
 		int oldHP = _currentHP;
 		_currentHP -= damage;
+		_currentHP = Mathf.Clamp(_currentHP, 0, GetMaxHP());
 
 		if (OnHealthChange != null)
 		{
