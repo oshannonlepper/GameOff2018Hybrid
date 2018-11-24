@@ -9,17 +9,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dbbe78c846e696f459c278c6e78d5413, type: 3}
-  m_Name: Roar
+  m_Name: Swim
   m_EditorClassIdentifier: 
-  Label: Roar
+  Label: Swim
   DamageOpponent: 0
   Power: 0
   Accuracy: 100
   CustomUserAttackAttributes: []
   CustomTargetAttackAttributes: []
-  CustomUserBattleAttributes: []
-  CustomTargetBattleAttributes:
-  - Attribute: DefenseModifier
-    Category: 
+  CustomUserBattleAttributes:
+  - Attribute: SpeedModifier
+    Category: Swim
     ContributionType: 0
-    Value: -1
+    Value: 2
+  CustomTargetBattleAttributes: []

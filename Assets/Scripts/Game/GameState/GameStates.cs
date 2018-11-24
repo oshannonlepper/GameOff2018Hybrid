@@ -94,16 +94,16 @@ public class BattleGameState : GameState
 {
 	private Battle _battle;
 	private UIBattle _battleUI;
-	private List<BattleCharacterData> _battleCharacters;
-
+	private List<BattleCharacterData> _characterPool;
+	
 	public BattleGameState()
 	{
 		_battle = new Battle();
 	}
 
-	public void SetCharacters(List<BattleCharacterData> inCharacters)
+	public void SetCharacterPool(List<BattleCharacterData> inCharacters)
 	{
-		_battleCharacters = inCharacters;
+		_characterPool = inCharacters;
 	}
 
 	public void SetUI(UIBattle inBattleUI)
@@ -117,7 +117,15 @@ public class BattleGameState : GameState
 
 		_battleUI.gameObject.SetActive(true);
 		_battle.OnBattleEnd += _battle_OnBattleEnd;
-		_battle.BeginEncounter(_battleCharacters);
+
+		List<BattleCharacterData> chosenCharacters = new List<BattleCharacterData>();
+		for (int choice = 0; choice < 2; ++choice)
+		{
+			int index = Random.Range(0, _characterPool.Count);
+			chosenCharacters.Add(_characterPool[index]);
+		}
+
+		_battle.BeginEncounter(chosenCharacters);
 	}
 
 	public override void OnStateExit()

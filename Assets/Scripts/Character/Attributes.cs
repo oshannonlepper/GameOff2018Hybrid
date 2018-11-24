@@ -10,6 +10,10 @@ using UnityEngine;
  */
 public class AttributesContainer
 {
+
+	public delegate void AttributeChangeEvent(string attribute, float oldValue, float newValue);
+	public event AttributeChangeEvent OnAttributeChanged;
+
 	private Dictionary<string, Attribute> _contributionMap;
 
 	public AttributesContainer()
@@ -24,7 +28,14 @@ public class AttributesContainer
 		{
 			_contributionMap[attribute] = new Attribute();
 		}
+		float oldValue = _contributionMap[attribute].GetValue();
 		_contributionMap[attribute].AddContribution(contributionCategory, contributionType, value);
+		float newValue = _contributionMap[attribute].GetValue();
+
+		if (oldValue != newValue && OnAttributeChanged != null)
+		{
+			OnAttributeChanged(attribute, oldValue, newValue);
+		}
 	}
 
 	public void AddContribution(string attribute, string contributionCategory, AttributeContributionType contributionType, int value)
@@ -35,9 +46,18 @@ public class AttributesContainer
 	/** RemoveContribution - remove all contributions from the given attribute that match the given contributionCategory. */
 	public void RemoveContribution(string attribute, string contributionCategory)
 	{
+		float oldValue = 0.0f;
+		float newValue = 0.0f;
 		if (_contributionMap.ContainsKey(attribute))
 		{
+			oldValue = _contributionMap[attribute].GetValue();
 			_contributionMap[attribute].RemoveContribution(contributionCategory);
+			newValue = _contributionMap[attribute].GetValue();
+		}
+
+		if (oldValue != newValue && OnAttributeChanged != null)
+		{
+			OnAttributeChanged(attribute, oldValue, newValue);
 		}
 	}
 

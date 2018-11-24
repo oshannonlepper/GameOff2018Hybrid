@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09602ec661ec0ad44a388e09725d3557, type: 3}
+  m_Name: Bear_L3
+  m_EditorClassIdentifier: 
+  Name: Bear
+  Level: 3
+  HP: 80
+  Attack: 32
+  Defense: 16
+  Speed: 14
+  Actions:
+  - {fileID: 11400000, guid: 1710d377a67d57542bea4e037d487ed1, type: 2}
+  - {fileID: 11400000, guid: 812de825eeb42f547995c9125d455119, type: 2}
+  - {fileID: 11400000, guid: 23f6ccbe872e29e438bc394e7a50617d, type: 2}
+  - {fileID: 11400000, guid: 3650a0d71af915b46b98f7507b4c024f, type: 2}

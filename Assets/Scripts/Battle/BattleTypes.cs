@@ -77,6 +77,8 @@ public interface IBattleListener
 {
 
 	void OnActionPerformed(BattleCharacterInstance attacker, BattleCharacterInstance target, BattleActionInstance action);
+	void OnAttributeChanged(BattleCharacterInstance character, string attribute, float oldValue, float newValue);
+	void OnCharacterLose(BattleCharacterInstance character);
 
 }
 
@@ -105,6 +107,22 @@ public class BattleEventDispatcher
 		foreach (IBattleListener listener in _listeners)
 		{
 			listener.OnActionPerformed(attacker, target, action);
+		}
+	}
+
+	public void AttributeChanged(BattleCharacterInstance character, string attribute, float oldValue, float newValue)
+	{
+		foreach (IBattleListener listener in _listeners)
+		{
+			listener.OnAttributeChanged(character, attribute, oldValue, newValue);
+		}
+	}
+
+	public void CharacterLose(BattleCharacterInstance character)
+	{
+		foreach (IBattleListener listener in _listeners)
+		{
+			listener.OnCharacterLose(character);
 		}
 	}
 
@@ -235,12 +253,23 @@ public class BattleContext
 		_battleEventDispatcher.ActionPerformed(attacker, target, action);
 	}
 
+	public void AttributeChanged(BattleCharacterInstance character, string attribute, float oldValue, float newValue)
+	{
+		_battleEventDispatcher.AttributeChanged(character, attribute, oldValue, newValue);
+	}
+	
+	public void CharacterLose(BattleCharacterInstance character)
+	{
+		_battleEventDispatcher.CharacterLose(character);
+	}
+
 }
 
 public class BattleCharacterInstance
 {
 	public delegate void HealthChangeEvent(int oldHP, int newHP);
 	public event HealthChangeEvent OnHealthChange;
+	public event AttributesContainer.AttributeChangeEvent OnAttributeChange;
 
 	private float[] _modifiers = { 0.25f, 0.28f, 0.33f, 0.4f, 0.5f, 1.0f, 1.5f, 2.0f, 2.5f, 3.0f, 3.5f, 4.0f };
 
@@ -266,6 +295,8 @@ public class BattleCharacterInstance
 		Name = data.Name;
 
 		_attributes = new AttributesContainer();
+		_attributes.OnAttributeChanged += OnAttributesChanged;
+
 		_attributes.AddContribution("Level", "Level", AttributeContributionType.Additive, data.Level);
 		_attributes.AddContribution("MaxHP", "BaseValue", AttributeContributionType.Additive, data.HP);
 		_attributes.AddContribution("Attack", "BaseValue", AttributeContributionType.Additive, data.Attack);
@@ -276,10 +307,23 @@ public class BattleCharacterInstance
 		_actions = new List<BattleActionInstance>();
 		foreach (BattleActionData action in data.Actions)
 		{
+			if (action == null)
+			{
+				Debug.LogError(data.Name + " had a null action.");
+				continue;
+			}
 			_actions.Add(action.CreateInstance());
 		}
 		_numActions = _actions.Count;
 
+	}
+
+	private void OnAttributesChanged(string attribute, float oldValue, float newValue)
+	{
+		if (OnAttributeChange != null)
+		{
+			OnAttributeChange(attribute, oldValue, newValue);
+		}
 	}
 
 	public AttributesContainer GetAttributes()

@@ -10,17 +10,17 @@ public class GameStateManager : MonoBehaviour
 	private BattleGameState _battleGameState;
 	private OverworldGameState _overworldGameState;
 
-	[SerializeField] private List<BattleCharacterData> _battleCharacterDatas;
+	[SerializeField] private List<BattleCharacterData> _battleCharacterPool;
 	[SerializeField] private UIBattle _battleUI;
 	[SerializeField] private GameObject _overworldPlayerPrefab;
-
+	
 	private void Awake()
 	{
 		_battleUI.gameObject.SetActive(false);
 
 		_battleGameState = new BattleGameState();
-		_battleGameState.SetCharacters(_battleCharacterDatas);
 		_battleGameState.SetUI(_battleUI);
+		_battleGameState.SetCharacterPool(_battleCharacterPool);
 
 		_overworldGameState = new OverworldGameState();
 		_overworldGameState.SetPlayerPrefab(_overworldPlayerPrefab);
@@ -49,4 +49,5 @@ public class GameStateManager : MonoBehaviour
 		float deltaTime = Time.deltaTime;
 		_gameStateMachine.UpdateStateMachine(deltaTime);
 	}
+
 }

@@ -49,4 +49,18 @@ public class UIBattle : MonoBehaviour, IBattleListener {
 	{
 		_battleText.QueueText(attacker.Name + " used " + action.Label + " on " + ((target == attacker) ? "themselves." : target.Name + "."));
 	}
+
+	public void OnAttributeChanged(BattleCharacterInstance character, string attribute, float oldValue, float newValue)
+	{
+		if (attribute.Contains("Modifier"))
+		{
+			string affectedStat = attribute.Substring(0, attribute.IndexOf("Modifier"));
+			_battleText.QueueText(character.Name + "'s " + affectedStat + " " + ((newValue > oldValue) ? "increased." : "decreased."));
+		}
+	}
+
+	public void OnCharacterLose(BattleCharacterInstance character)
+	{
+		_battleText.QueueText(character.Name + " fainted.");
+	}
 }

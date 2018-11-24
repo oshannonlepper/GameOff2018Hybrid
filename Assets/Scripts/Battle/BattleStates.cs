@@ -302,7 +302,13 @@ public class BattleStateResolveAttack : BattleState
 		_finishedResolving = false;
 		_currentCharacter = Context.GetCharacterByID(Context.GetCurrentTurnCharacterID());
 		_targetCharacter = Context.GetCharacterByID(Context.GetCurrentTarget());
+		
+		_currentCharacter.OnAttributeChange += OnAttackerAttributeChange;
+		_targetCharacter.OnAttributeChange += OnTargetAttributeChange;
+
 		_currentAction = Context.GetCurrentAction();
+
+		Context.ActionPerformed(_currentCharacter, _targetCharacter, _currentAction);
 		_currentAction.OnBeginAction(_currentCharacter, _targetCharacter);
 	}
 
@@ -311,15 +317,36 @@ public class BattleStateResolveAttack : BattleState
 		base.OnStateExit();
 
 		_currentAction.OnEndAction(_currentCharacter, _targetCharacter);
+
+		_currentCharacter.OnAttributeChange -= OnAttackerAttributeChange;
+		_targetCharacter.OnAttributeChange -= OnTargetAttributeChange;
+
+		if (_targetCharacter.HP <= 0)
+		{
+			Context.CharacterLose(_targetCharacter);
+		}
+		else if (_currentCharacter.HP <= 0)
+		{
+			Context.CharacterLose(_currentCharacter);
+		}
+	}
+
+	private void OnAttackerAttributeChange(string attribute, float oldValue, float newValue)
+	{
+		Context.AttributeChanged(_currentCharacter, attribute, oldValue, newValue);
+	}
+
+	private void OnTargetAttributeChange(string attribute, float oldValue, float newValue)
+	{
+		Context.AttributeChanged(_targetCharacter, attribute, oldValue, newValue);
 	}
 
 	public override void UpdateState(float deltaTime)
 	{
 		base.UpdateState(deltaTime);
 
-		if (_currentAction.ResolveAction())
+		if (_currentAction != null && _currentAction.ResolveAction())
 		{
-			Context.ActionPerformed(_currentCharacter, _targetCharacter, _currentAction);
 			_finishedResolving = true;
 		}
 

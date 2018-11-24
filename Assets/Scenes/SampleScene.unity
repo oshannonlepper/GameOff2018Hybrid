@@ -475,9 +475,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b641f1e6627a7c49849cccf22728ead, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _battleCharacterDatas:
+  _battleCharacterPool:
+  - {fileID: 11400000, guid: 756b1fcbc1b06e040a006ba1888b3639, type: 2}
+  - {fileID: 11400000, guid: 02dd11271769816429a4c1ec251c0bf0, type: 2}
+  - {fileID: 11400000, guid: 55e928a87bc560e40be926987dfe7a7e, type: 2}
   - {fileID: 11400000, guid: 308ec04d5cfb1f243a076cc48ae65d3a, type: 2}
-  - {fileID: 11400000, guid: 6a37862b07eb20f4ca06cefb74b018f5, type: 2}
+  - {fileID: 11400000, guid: 8ad9552c88f6a13439aea63172d177b1, type: 2}
+  - {fileID: 11400000, guid: 6c04f7fcd62739e4b88c977313403ef9, type: 2}
+  - {fileID: 11400000, guid: dc80007b361979b40b02d44c8d362e3f, type: 2}
   _battleUI: {fileID: 764226992}
   _overworldPlayerPrefab: {fileID: 1405119744814164, guid: e269e61594942cc4b84f741add7c1988,
     type: 2}

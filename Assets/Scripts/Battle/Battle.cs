@@ -7,6 +7,7 @@ public class Battle
 
 	public delegate void BattleEvent();
 
+	public event BattleEvent OnBattleStart;
 	public event BattleEvent OnBattleEnd;
 
 	private BattleStateMachine _battleStateMachine;
