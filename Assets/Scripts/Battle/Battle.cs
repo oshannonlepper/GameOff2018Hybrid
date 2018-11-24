@@ -5,6 +5,10 @@ using UnityEngine;
 public class Battle
 {
 
+	public delegate void BattleEvent();
+
+	public event BattleEvent OnBattleEnd;
+
 	private BattleStateMachine _battleStateMachine;
 
 	public Battle()
@@ -45,7 +49,10 @@ public class Battle
 
 	public void EndEncounter(/* TODO - params, encounter outcome (victory/defeat) ? */)
 	{
-
+		if (OnBattleEnd != null)
+		{
+			OnBattleEnd();
+		}
 	}
 
 	public void UpdateBattle(float deltaTime)

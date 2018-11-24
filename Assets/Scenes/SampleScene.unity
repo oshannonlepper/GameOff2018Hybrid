@@ -479,6 +479,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 308ec04d5cfb1f243a076cc48ae65d3a, type: 2}
   - {fileID: 11400000, guid: 6a37862b07eb20f4ca06cefb74b018f5, type: 2}
   _battleUI: {fileID: 764226992}
+  _overworldPlayerPrefab: {fileID: 1405119744814164, guid: e269e61594942cc4b84f741add7c1988,
+    type: 2}
 --- !u!4 &615050452
 Transform:
   m_ObjectHideFlags: 0
@@ -617,6 +619,46 @@ Prefab:
         type: 2}
       propertyPath: m_Pivot.y
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 224305252435437536, guid: 7e5f0b82b09adc7448a21eabba5321b9,
+        type: 2}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224305252435437536, guid: 7e5f0b82b09adc7448a21eabba5321b9,
+        type: 2}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224305252435437536, guid: 7e5f0b82b09adc7448a21eabba5321b9,
+        type: 2}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224305252435437536, guid: 7e5f0b82b09adc7448a21eabba5321b9,
+        type: 2}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224620748528051812, guid: 7e5f0b82b09adc7448a21eabba5321b9,
+        type: 2}
+      propertyPath: m_AnchorMin.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224620748528051812, guid: 7e5f0b82b09adc7448a21eabba5321b9,
+        type: 2}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224620748528051812, guid: 7e5f0b82b09adc7448a21eabba5321b9,
+        type: 2}
+      propertyPath: m_Pivot.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224620748528051812, guid: 7e5f0b82b09adc7448a21eabba5321b9,
+        type: 2}
+      propertyPath: m_AnchoredPosition.y
+      value: 120
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7e5f0b82b09adc7448a21eabba5321b9, type: 2}

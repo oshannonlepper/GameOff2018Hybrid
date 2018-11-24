@@ -6,10 +6,13 @@ using UnityEngine;
 public class GameStateManager : MonoBehaviour
 {
 	private StateMachine _gameStateMachine;
+
 	private BattleGameState _battleGameState;
+	private OverworldGameState _overworldGameState;
 
 	[SerializeField] private List<BattleCharacterData> _battleCharacterDatas;
 	[SerializeField] private UIBattle _battleUI;
+	[SerializeField] private GameObject _overworldPlayerPrefab;
 
 	private void Awake()
 	{
@@ -17,10 +20,14 @@ public class GameStateManager : MonoBehaviour
 
 		_battleGameState = new BattleGameState();
 		_battleGameState.SetCharacters(_battleCharacterDatas);
+		_battleGameState.SetUI(_battleUI);
+
+		_overworldGameState = new OverworldGameState();
+		_overworldGameState.SetPlayerPrefab(_overworldPlayerPrefab);
 
 		_gameStateMachine = new StateMachine();
 		_gameStateMachine.RegisterState("MainMenu", new MainMenuGameState());
-		_gameStateMachine.RegisterState("Overworld", new OverworldGameState());
+		_gameStateMachine.RegisterState("Overworld", _overworldGameState);
 		_gameStateMachine.RegisterState("Battle", _battleGameState);
 		_gameStateMachine.RegisterState("BattleResult", new BattleResultGameState());
 
