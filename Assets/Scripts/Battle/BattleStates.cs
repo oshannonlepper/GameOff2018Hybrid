@@ -319,6 +319,7 @@ public class BattleStateResolveAttack : BattleState
 
 		if (_currentAction.ResolveAction())
 		{
+			Context.ActionPerformed(_currentCharacter, _targetCharacter, _currentAction);
 			_finishedResolving = true;
 		}
 
@@ -335,6 +336,8 @@ public class BattleStateAttackAnimation : BattleState
 	private string _attacker = "";
 	private string _target = "";
 	private string _attackLabel = "";
+	private float _waitTime = 2.0f;
+	private float _startTime = 0.0f;
 
 	public override void OnStateEnter()
 	{
@@ -343,6 +346,7 @@ public class BattleStateAttackAnimation : BattleState
 		_attacker = Context.GetCharacterByID(Context.GetCurrentTurnCharacterID()).Name;
 		_target = Context.GetCharacterByID(Context.GetCurrentTarget()).Name;
 		_attackLabel = Context.GetCurrentAction().ToString();
+		_startTime = Time.time;
 	}
 
 	public override void OnStateExit()
@@ -358,9 +362,10 @@ public class BattleStateAttackAnimation : BattleState
 	{
 		base.UpdateState(deltaTime);
 
-		Debug.Log(_attacker + " used " + _attackLabel + " on " + _target + ".");
-
-		Owner.RequestState("DetermineNextTurn");
+		if (Time.time >= _startTime + _waitTime)
+		{
+			Owner.RequestState("DetermineNextTurn");
+		}
 	}
 
 }

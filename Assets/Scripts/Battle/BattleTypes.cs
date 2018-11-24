@@ -73,8 +73,46 @@ public class BattleTurnCalculator
 	}
 }
 
+public interface IBattleListener
+{
+
+	void OnActionPerformed(BattleCharacterInstance attacker, BattleCharacterInstance target, BattleActionInstance action);
+
+}
+
+public class BattleEventDispatcher
+{
+
+	private List<IBattleListener> _listeners;
+
+	public BattleEventDispatcher()
+	{
+		_listeners = new List<IBattleListener>();
+	}
+
+	public void AddListener(IBattleListener listener)
+	{
+		_listeners.Add(listener);
+	}
+
+	public void RemoveListener(IBattleListener listener)
+	{
+		_listeners.Remove(listener);
+	}
+
+	public void ActionPerformed(BattleCharacterInstance attacker, BattleCharacterInstance target, BattleActionInstance action)
+	{
+		foreach (IBattleListener listener in _listeners)
+		{
+			listener.OnActionPerformed(attacker, target, action);
+		}
+	}
+
+}
+
 public class BattleContext
 {
+	private BattleEventDispatcher _battleEventDispatcher;
 	private List<BattleCharacterInstance> _characters;
 	private List<int> _outCharacterIDs;
 	private int _currentTurn = 0;
@@ -85,6 +123,7 @@ public class BattleContext
 	{
 		_characters = new List<BattleCharacterInstance>();
 		_outCharacterIDs = new List<int>();
+		_battleEventDispatcher = new BattleEventDispatcher();
 	}
 
 	public int AddCharacter(BattleCharacterInstance character)
@@ -177,6 +216,23 @@ public class BattleContext
 	public int GetActiveCharacterCount()
 	{
 		return _characters.Count - _outCharacterIDs.Count;
+	}
+
+	// event dispatcher interface
+
+	public void AddListener(IBattleListener listener)
+	{
+		_battleEventDispatcher.AddListener(listener);
+	}
+
+	public void RemoveListener(IBattleListener listener)
+	{
+		_battleEventDispatcher.RemoveListener(listener);
+	}
+
+	public void ActionPerformed(BattleCharacterInstance attacker, BattleCharacterInstance target, BattleActionInstance action)
+	{
+		_battleEventDispatcher.ActionPerformed(attacker, target, action);
 	}
 
 }
