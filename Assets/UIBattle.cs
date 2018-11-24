@@ -47,6 +47,6 @@ public class UIBattle : MonoBehaviour, IBattleListener {
 
 	public void OnActionPerformed(BattleCharacterInstance attacker, BattleCharacterInstance target, BattleActionInstance action)
 	{
-		_battleText.SetText(attacker.Name + " used " + action.Label + " on " + ((target == attacker) ? "themselves." : target.Name + "."));
+		_battleText.QueueText(attacker.Name + " used " + action.Label + " on " + ((target == attacker) ? "themselves." : target.Name + "."));
 	}
 }

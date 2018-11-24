@@ -346,7 +346,8 @@ public class BattleStateAttackAnimation : BattleState
 		_attacker = Context.GetCharacterByID(Context.GetCurrentTurnCharacterID()).Name;
 		_target = Context.GetCharacterByID(Context.GetCurrentTarget()).Name;
 		_attackLabel = Context.GetCurrentAction().ToString();
-		_startTime = Time.time;
+
+		UIBattleText.OnTextQueueExhausted += UIBattleText_OnTextQueueExhausted;
 	}
 
 	public override void OnStateExit()
@@ -356,16 +357,13 @@ public class BattleStateAttackAnimation : BattleState
 		_attacker = "";
 		_target = "";
 		_attackLabel = "";
+
+		UIBattleText.OnTextQueueExhausted -= UIBattleText_OnTextQueueExhausted;
 	}
 
-	public override void UpdateState(float deltaTime)
+	private void UIBattleText_OnTextQueueExhausted()
 	{
-		base.UpdateState(deltaTime);
-
-		if (Time.time >= _startTime + _waitTime)
-		{
-			Owner.RequestState("DetermineNextTurn");
-		}
+		Owner.RequestState("DetermineNextTurn");
 	}
 
 }
