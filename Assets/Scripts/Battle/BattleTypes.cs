@@ -37,10 +37,11 @@ public class BattleTurnCalculator
 
 		while (nextTurn == -1)
 		{
+			// TODO - Don't iterate all character IDs anymore, just get the active ones and process them
 			for (int characterID = 0; characterID < context.GetNumCharacters(); ++characterID)
 			{
 				BattleCharacterInstance character = context.GetCharacterByID(characterID);
-				if (character.HP <= 0.0f)
+				if (character.HP <= 0.0f || !context.IsActiveCharacter(characterID))
 				{
 					continue;
 				}
@@ -64,8 +65,8 @@ public class BattleTurnCalculator
 		{
 			BattleCharacterInstance character = context.GetCharacterByID(characterID);
 
-			// only count non-out characters for the turn total
-			if (character.HP > 0)
+			// only count non-out, active characters for the turn total
+			if (character.HP > 0 && context.IsActiveCharacter(characterID))
 			{
 				_turnTotal += character.GetSpeed();
 			}
@@ -79,6 +80,7 @@ public interface IBattleListener
 	void OnActionPerformed(BattleCharacterInstance attacker, BattleCharacterInstance target, BattleActionInstance action);
 	void OnAttributeChanged(BattleCharacterInstance character, string attribute, float oldValue, float newValue);
 	void OnCharacterLose(BattleCharacterInstance character);
+	void OnActiveCharacterChange(BattleCharacterInstance character, int team);
 
 }
 
@@ -126,40 +128,105 @@ public class BattleEventDispatcher
 		}
 	}
 
+	public void ActiveCharacterChange(BattleCharacterInstance character, int team)
+	{
+		foreach (IBattleListener listener in _listeners)
+		{
+			listener.OnActiveCharacterChange(character, team);
+		}
+	}
+
 }
 
 public class BattleContext
 {
 	private BattleEventDispatcher _battleEventDispatcher;
 	private List<BattleCharacterInstance> _characters;
+	private List<int> _characterTeamIDs;
 	private List<int> _outCharacterIDs;
 	private int _currentTurn = 0;
 	private int _currentAction = 0;
 	private int _currentTarget = 0;
 
+	private int _activePlayerCharacter = -1;
+	private int _activeEnemyCharacter = -1;
+
 	public BattleContext()
 	{
 		_characters = new List<BattleCharacterInstance>();
+		_characterTeamIDs = new List<int>();
 		_outCharacterIDs = new List<int>();
 		_battleEventDispatcher = new BattleEventDispatcher();
 	}
 
-	public int AddCharacter(BattleCharacterInstance character)
+	public void SetActivePlayerCharacter(int characterID)
+	{
+		// TODO: Sanity check - make sure is valid ID and is aligned with player team
+		_activePlayerCharacter = characterID;
+		_battleEventDispatcher.ActiveCharacterChange(GetCharacterByID(characterID), 0);
+	}
+
+	public void SetActiveEnemyCharacter(int characterID)
+	{
+		// TODO: Sanity check - make sure is valid ID and is aligned with enemy team
+		_activeEnemyCharacter = characterID;
+		_battleEventDispatcher.ActiveCharacterChange(GetCharacterByID(characterID), 1);
+	}
+
+	public bool IsActiveCharacter(int characterID)
+	{
+		return _activePlayerCharacter == characterID || _activeEnemyCharacter == characterID;
+	}
+
+	public int AddCharacter(BattleCharacterInstance character, int team)
 	{
 		int id = _characters.Count;
 		character.ID = id;
 		_characters.Add(character);
+		_characterTeamIDs.Add(team);
+
+		if (team == 0 && _activePlayerCharacter == -1)
+		{
+			SetActivePlayerCharacter(id);
+		}
+		else if (team == 1 && _activeEnemyCharacter == -1)
+		{
+			SetActiveEnemyCharacter(id);
+		}
+
 		return id;
 	}
 
 	public bool RemoveCharacter(int characterID)
 	{
-		return _characters.Remove(GetCharacterByID(characterID));
+		int index = IndexOfCharacter(GetCharacterByID(characterID));
+
+		if (index == -1)
+		{
+			return false;
+		}
+
+		_characters.RemoveAt(index);
+		_characterTeamIDs.RemoveAt(index);
+		return true;
 	}
 
 	public int GetNumCharacters()
 	{
 		return _characters.Count;
+	}
+
+	public int IndexOfCharacter(BattleCharacterInstance character)
+	{
+		for (int index = 0; index < _characters.Count; ++index)
+		{
+			if (_characters[index] == character)
+			{
+				return index;
+			}
+		}
+
+		return -1;
 	}
 
 	public BattleCharacterInstance GetCharacterByID(int id)
@@ -225,15 +292,68 @@ public class BattleContext
 		}
 		else
 		{
+			if (!IsActiveCharacter(characterID))
+			{
+				Debug.LogError("Inactive character marked as out somehow");
+			}
+
 			_outCharacterIDs.Add(characterID);
+			
+			// find out which team the character was on, and try to replace them with a new active character
+			int index = IndexOfCharacter(GetCharacterByID(characterID));
+			int teamIndex = _characterTeamIDs[index];
+			bool foundReplacement = false;
+
+			foreach (BattleCharacterInstance character in _characters)
+			{
+				if (character.HP > 0 && !IsActiveCharacter(character.ID))
+				{
+					int characterTeam = _characterTeamIDs[IndexOfCharacter(character)];
+					if (characterTeam == teamIndex)
+					{
+						if (characterTeam == 0)
+						{
+							SetActivePlayerCharacter(character.ID);
+						}
+						else
+						{
+							SetActiveEnemyCharacter(character.ID);
+						}
+						foundReplacement = true;
+					}
+				}
+			}
+
+			if (!foundReplacement)
+			{
+				if (teamIndex == 0)
+				{
+					SetActivePlayerCharacter(-1);
+				}
+				else
+				{
+					SetActiveEnemyCharacter(-1);
+				}
+			}
 		}
 		return GetActiveCharacterCount();
 	}
 
-	// return number of characters who aren't marked as out
+	// return number of characters in play, typically returns 2, will return 1 if all of one team's animals are out.
 	public int GetActiveCharacterCount()
 	{
-		return _characters.Count - _outCharacterIDs.Count;
+		int count = 2;
+
+		if (_activePlayerCharacter == -1)
+		{
+			--count;
+		}
+		if (_activeEnemyCharacter == -1)
+		{
+			--count;
+		}
+
+		return count;
 	}
 
 	// event dispatcher interface

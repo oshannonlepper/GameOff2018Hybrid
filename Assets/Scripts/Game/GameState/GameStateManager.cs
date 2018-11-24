@@ -39,9 +39,6 @@ public class GameStateManager : MonoBehaviour
 	private void BattleStateMachine_OnSetContext(BattleStateMachine machine, BattleContext context)
 	{
 		_battleUI.gameObject.SetActive(true);
-		// TODO - Work this out a better way so we're not making assumptions about which ID corresponds to a playable character.
-		_battleUI.SetPlayer(context.GetCharacterByID(0));
-		_battleUI.SetEnemy(context.GetCharacterByID(1));
 	}
 
 	private void Update()

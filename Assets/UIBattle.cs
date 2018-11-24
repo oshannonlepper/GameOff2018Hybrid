@@ -63,4 +63,24 @@ public class UIBattle : MonoBehaviour, IBattleListener {
 	{
 		_battleText.QueueText(character.Name + " fainted.");
 	}
+
+	public void OnActiveCharacterChange(BattleCharacterInstance character, int team)
+	{
+		if (team == 0)
+		{
+			_playerHealthDisplay.gameObject.SetActive(character != null);
+			if (character != null)
+			{
+				_playerHealthDisplay.SetCharacter(character);
+			}
+		}
+		else
+		{
+			_enemyHealthDisplay.gameObject.SetActive(character != null);
+			if (character != null)
+			{
+				_enemyHealthDisplay.SetCharacter(character);
+			}
+		}
+	}
 }

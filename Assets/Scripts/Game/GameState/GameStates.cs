@@ -95,15 +95,19 @@ public class BattleGameState : GameState
 	private Battle _battle;
 	private UIBattle _battleUI;
 	private List<BattleCharacterData> _characterPool;
-	
+	private List<BattleCharacterInstance> _playerCharacters;
+
 	public BattleGameState()
 	{
 		_battle = new Battle();
+
+		_playerCharacters = new List<BattleCharacterInstance>();
 	}
 
 	public void SetCharacterPool(List<BattleCharacterData> inCharacters)
 	{
 		_characterPool = inCharacters;
+		_playerCharacters.Add(MakeRandomCharacterInstance());
 	}
 
 	public void SetUI(UIBattle inBattleUI)
@@ -118,14 +122,7 @@ public class BattleGameState : GameState
 		_battleUI.gameObject.SetActive(true);
 		_battle.OnBattleEnd += _battle_OnBattleEnd;
 
-		List<BattleCharacterData> chosenCharacters = new List<BattleCharacterData>();
-		for (int choice = 0; choice < 2; ++choice)
-		{
-			int index = Random.Range(0, _characterPool.Count);
-			chosenCharacters.Add(_characterPool[index]);
-		}
-
-		_battle.BeginEncounter(chosenCharacters);
+		_battle.BeginRandomEncounter(_playerCharacters, MakeRandomCharacterInstance());
 	}
 
 	public override void OnStateExit()
@@ -139,6 +136,18 @@ public class BattleGameState : GameState
 	private void _battle_OnBattleEnd()
 	{
 		Owner.RequestState("BattleResult");
+	}
+
+	private BattleCharacterInstance MakeRandomCharacterInstance()
+	{
+		if (_characterPool.Count <= 0)
+		{
+			Debug.LogError("Trying to make character instance without a character data pool.");
+			return null;
+		}
+
+		int index = Random.Range(0, _characterPool.Count);
+		return _characterPool[index].CreateInstance();
 	}
 
 	public override void UpdateState(float deltaTime)

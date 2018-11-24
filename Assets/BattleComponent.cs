@@ -10,8 +10,6 @@ public class BattleComponent : MonoBehaviour {
 
 	private void Awake()
 	{
-		_battle = new Battle();
-		_battle.BeginEncounter(_testData);
 	}
 
 	private void Update()

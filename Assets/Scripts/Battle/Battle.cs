@@ -24,19 +24,40 @@ public class Battle
 		_battleStateMachine.RegisterState("End", new BattleStateEnd());
 	}
 
-	public void BeginEncounter(List<BattleCharacterData> participants)
+	public void BeginRandomEncounter(List<BattleCharacterInstance> playerBattleCharacters, BattleCharacterInstance enemy)
 	{
 		_battleStateMachine.OnStateChanged += _battleStateMachine_OnStateChanged;
 
 		BattleContext context = new BattleContext();
-
-		foreach (BattleCharacterData data in participants)
-		{
-			BattleCharacterInstance instance = new BattleCharacterInstance(data);
-			context.AddCharacter(instance);
-		}
-		
 		_battleStateMachine.SetContext(context);
+
+		foreach (BattleCharacterInstance playerCharacter in playerBattleCharacters)
+		{
+			context.AddCharacter(playerCharacter, 0);
+		}
+
+		context.AddCharacter(enemy, 1);
+
+		_battleStateMachine.RequestState("Start");
+	}
+
+	public void BeginTrainerBattle(List<BattleCharacterInstance> playerBattleCharacters, List<BattleCharacterInstance> enemyBattleCharacters)
+	{
+		_battleStateMachine.OnStateChanged += _battleStateMachine_OnStateChanged;
+
+		BattleContext context = new BattleContext();
+		_battleStateMachine.SetContext(context);
+
+		foreach (BattleCharacterInstance playerCharacter in playerBattleCharacters)
+		{
+			context.AddCharacter(playerCharacter, 0);
+		}
+
+		foreach (BattleCharacterInstance enemyCharacter in enemyBattleCharacters)
+		{
+			context.AddCharacter(enemyCharacter, 1);
+		}
+
 		_battleStateMachine.RequestState("Start");
 	}
 
