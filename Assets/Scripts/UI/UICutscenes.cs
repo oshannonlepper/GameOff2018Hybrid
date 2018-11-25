@@ -14,6 +14,7 @@ public class UICutscenes : MonoBehaviour {
 	[SerializeField] private Image _cutsceneImage;
 	[SerializeField] private Text _text;
 
+	private TypewriterText _typewriter;
 	private CutsceneData _currentData = null;
 	private int _numItems = 0;
 	private int _currentItem = -1;
@@ -23,6 +24,7 @@ public class UICutscenes : MonoBehaviour {
 	{
 		_backgroundAnimator.StopPlayback();
 		_cutsceneImageAnimator.StopPlayback();
+		_typewriter = new TypewriterText(_text, 0.01f);
 	}
 
 	public void RequestCutscene(CutsceneData data)
@@ -57,7 +59,7 @@ public class UICutscenes : MonoBehaviour {
 
 		if (_currentItem < _numItems)
 		{
-			_text.text = _currentData.Data[_currentItem].CutsceneText;
+			_typewriter.SetText(_currentData.Data[_currentItem].CutsceneText);
 			_cutsceneImage.sprite = _currentData.Data[_currentItem].CutsceneSprite;
 			_cutsceneImageAnimator.Play("UICutsceneImage_FadeIn");
 		}
@@ -74,11 +76,20 @@ public class UICutscenes : MonoBehaviour {
 			return;
 		}
 
+		_typewriter.Update(Time.deltaTime);
+
 		if (_currentItem > -1 && _readyToContinue)
 		{
 			if (Input.GetKeyDown(KeyCode.Space))
 			{
-				_cutsceneImageAnimator.Play("UICutsceneImage_FadeOut");
+				if (!_typewriter.IsComplete())
+				{
+					_typewriter.ForceComplete();
+				}
+				else
+				{
+					_cutsceneImageAnimator.Play("UICutsceneImage_FadeOut");
+				}
 			}
 		}
 	}
@@ -96,7 +107,7 @@ public class UICutscenes : MonoBehaviour {
 	public void OnPreCutsceneFadeOut()
 	{
 		_readyToContinue = false;
-		_text.text = "";
+		_typewriter.SetText("");
 	}
 
 	public void OnPostCutsceneFadeOut()
