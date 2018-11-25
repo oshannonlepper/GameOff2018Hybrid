@@ -13,17 +13,21 @@ public class UIBattleText : MonoBehaviour
 	[SerializeField] private float _updateRate;
 
 	private List<string> _stringQueue;
-	private int _currentIndex = 0;
-	private float _updateTimer = 0.0f;
+	private TypewriterText _typewriter;
 
 	private void Awake()
 	{
 		_stringQueue = new List<string>();
+		_typewriter = new TypewriterText(_text, _updateRate);
 	}
 
 	public void QueueText(string input)
 	{
 		_stringQueue.Add(input);
+		if (_stringQueue.Count == 1)
+		{
+			_typewriter.SetText(_stringQueue[0]);
+		}
 	}
 
 	private void Update()
@@ -33,32 +37,25 @@ public class UIBattleText : MonoBehaviour
 			return;
 		}
 
-		string currentStr = _stringQueue[0];
-
-		_updateTimer += Time.deltaTime;
-		if (_updateTimer >= _updateRate)
-		{
-			++_currentIndex;
-			_updateTimer -= _updateRate;
-
-			_text.text = currentStr.Substring(0, Mathf.Min(_currentIndex, currentStr.Length));
-		}
+		_typewriter.Update(Time.deltaTime);
 
 		if (Input.GetKeyDown(KeyCode.Space))
 		{
-			if (_currentIndex < currentStr.Length)
-			{
-				_currentIndex = currentStr.Length;
-			}
-			else
+			if (_typewriter.IsComplete())
 			{
 				_stringQueue.RemoveAt(0);
-				_currentIndex = 0;
-
-				if (_stringQueue.Count == 0 && OnTextQueueExhausted != null)
+				if (_stringQueue.Count > 0)
+				{
+					_typewriter.SetText(_stringQueue[0]);
+				}
+				else if (OnTextQueueExhausted != null)
 				{
 					OnTextQueueExhausted();
 				}
+			}
+			else
+			{
+				_typewriter.ForceComplete();
 			}
 		}
 	}
