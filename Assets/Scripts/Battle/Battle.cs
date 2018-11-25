@@ -2,15 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum EBattleOutcome
+{
+	Win,
+	Lose
+}
+
 public class Battle
 {
 
-	public delegate void BattleEvent();
+	public delegate void BattleEvent(EBattleOutcome result);
 
 	public event BattleEvent OnBattleStart;
 	public event BattleEvent OnBattleEnd;
 
 	private BattleStateMachine _battleStateMachine;
+	private BattleContext _context;
 
 	public Battle()
 	{
@@ -28,15 +35,15 @@ public class Battle
 	{
 		_battleStateMachine.OnStateChanged += _battleStateMachine_OnStateChanged;
 
-		BattleContext context = new BattleContext();
-		_battleStateMachine.SetContext(context);
+		_context = new BattleContext();
+		_battleStateMachine.SetContext(_context);
 
 		foreach (BattleCharacterInstance playerCharacter in playerBattleCharacters)
 		{
-			context.AddCharacter(playerCharacter, 0);
+			_context.AddCharacter(playerCharacter, 0);
 		}
 
-		context.AddCharacter(enemy, 1);
+		_context.AddCharacter(enemy, 1);
 
 		_battleStateMachine.RequestState("Start");
 	}
@@ -65,15 +72,15 @@ public class Battle
 	{
 		if (newState.Equals("End"))
 		{
-			EndEncounter();
+			EndEncounter(_context.GetBattleResult());
 		}
 	}
 
-	public void EndEncounter(/* TODO - params, encounter outcome (victory/defeat) ? */)
+	public void EndEncounter(EBattleOutcome result)
 	{
 		if (OnBattleEnd != null)
 		{
-			OnBattleEnd();
+			OnBattleEnd(result);
 		}
 	}
 

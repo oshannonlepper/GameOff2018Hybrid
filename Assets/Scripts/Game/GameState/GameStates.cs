@@ -2,8 +2,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class GameStateContext
+{
+
+	private List<BattleCharacterInstance> _playerCharacters;
+	public UICutscenes Cutscenes { get; set; }
+	private EBattleOutcome _lastBattleResult;
+
+	public void SetBattleResult(EBattleOutcome result)
+	{
+		_lastBattleResult = result;
+	}
+
+	public EBattleOutcome GetBattleResult()
+	{
+		return _lastBattleResult;
+	}
+
+}
+
 public class GameState : State
 {
+
+	protected GameStateContext Context
+	{
+		get
+		{
+			return (Owner as GameStateMachine).GetContext();
+		}
+	}
+
 	public override void OnStateEnter()
 	{
 	}
@@ -133,8 +161,9 @@ public class BattleGameState : GameState
 		_battle.OnBattleEnd -= _battle_OnBattleEnd;
 	}
 
-	private void _battle_OnBattleEnd()
+	private void _battle_OnBattleEnd(EBattleOutcome result)
 	{
+		Context.SetBattleResult(result);
 		Owner.RequestState("BattleResult");
 	}
 
@@ -161,18 +190,47 @@ public class BattleGameState : GameState
 public class BattleResultGameState : GameState
 {
 
+	private CutsceneData _loseGameCutsceneData;
+	private bool _loseCutscenePlaying = false;
+
+	public void SetLoseGameCutsceneData(CutsceneData loseGameCutsceneData)
+	{
+		_loseGameCutsceneData = loseGameCutsceneData;
+	}
+
 	public override void OnStateEnter()
 	{
 		base.OnStateEnter();
 
-		Debug.Log("Battle results");
+		_loseCutscenePlaying = false;
+
+		UICutscenes.OnCutsceneStart += UICutscenes_OnCutsceneStart;
+		UICutscenes.OnCutsceneEnd += UICutscenes_OnCutsceneEnd;
+
+		if (Context.GetBattleResult() == EBattleOutcome.Lose)
+		{
+			Context.Cutscenes.RequestCutscene(_loseGameCutsceneData);
+		}
+	}
+
+	private void UICutscenes_OnCutsceneStart()
+	{
+		_loseCutscenePlaying = true;
+	}
+
+	private void UICutscenes_OnCutsceneEnd()
+	{
+		Owner.RequestState("Overworld");
 	}
 
 	public override void UpdateState(float deltaTime)
 	{
 		base.UpdateState(deltaTime);
 
-		Owner.RequestState("Overworld");
+		if (!_loseCutscenePlaying)
+		{
+			Owner.RequestState("Overworld");
+		}
 	}
 
 }

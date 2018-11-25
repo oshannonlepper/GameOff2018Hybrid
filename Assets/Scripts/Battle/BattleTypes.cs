@@ -150,6 +150,7 @@ public class BattleContext
 
 	private int _activePlayerCharacter = -1;
 	private int _activeEnemyCharacter = -1;
+	private EBattleOutcome _result = EBattleOutcome.Win;
 
 	public BattleContext()
 	{
@@ -157,6 +158,11 @@ public class BattleContext
 		_characterTeamIDs = new List<int>();
 		_outCharacterIDs = new List<int>();
 		_battleEventDispatcher = new BattleEventDispatcher();
+	}
+
+	public EBattleOutcome GetBattleResult()
+	{
+		return _result;
 	}
 
 	public void SetActivePlayerCharacter(int characterID)
@@ -180,6 +186,7 @@ public class BattleContext
 
 	public int AddCharacter(BattleCharacterInstance character, int team)
 	{
+		_result = EBattleOutcome.Win;
 		int id = _characters.Count;
 		character.ID = id;
 		_characters.Add(character);
@@ -329,6 +336,7 @@ public class BattleContext
 				if (teamIndex == 0)
 				{
 					SetActivePlayerCharacter(-1);
+					_result = EBattleOutcome.Lose;
 				}
 				else
 				{

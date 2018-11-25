@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f53864048456704da7f585f9dd1bd0a, type: 3}
+  m_Name: LoseGameCutsceneData
+  m_EditorClassIdentifier: 
+  Data:
+  - CutsceneSprite: {fileID: 21300000, guid: 03def6ad6ca45f24898a3f5f60c8ff3a, type: 3}
+    CutsceneText: You looked on in despair at your fallen companion.
+  - CutsceneSprite: {fileID: 21300000, guid: f4e8151936c98b045ab9c05960698465, type: 3}
+    CutsceneText: You fleed from the scene in search of the nearest vet, tears streaking
+      from your face.
+  - CutsceneSprite: {fileID: 21300000, guid: 57cf405cb7a656c4f959c0eb2ad54c67, type: 3}
+    CutsceneText: 
+  - CutsceneSprite: {fileID: 21300000, guid: 7839a9a6dc02faa47895287de025908d, type: 3}
+    CutsceneText: You threw your companion upon the nearest healthcare professional,
+      they didn't look too happy about this...
+  - CutsceneSprite: {fileID: 21300000, guid: 3c4280996d1ff324abad8e75001da92a, type: 3}
+    CutsceneText: '...'
+  - CutsceneSprite: {fileID: 21300000, guid: e0a7bee7123abe647ba1beb17884f96b, type: 3}
+    CutsceneText: You gave them some money for their troubles.
