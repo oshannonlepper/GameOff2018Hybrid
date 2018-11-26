@@ -60,7 +60,7 @@ public class MainMenuGameState : GameState
 
 		if (Input.GetKeyDown(KeyCode.Space))
 		{
-			Owner.RequestState("Overworld");
+			Owner.RequestState("Intro");
 		}
 	}
 }
@@ -187,49 +187,106 @@ public class BattleGameState : GameState
 	}
 }
 
-public class BattleResultGameState : GameState
+public class CutsceneGameState : GameState
 {
+	private CutsceneData _cutscene = null;
+	private bool _autoPlay = true;
+	private bool _cutsceneIsPlaying = false;
+	private string _nextState = "";
 
-	private CutsceneData _loseGameCutsceneData;
-	private bool _loseCutscenePlaying = false;
-
-	public void SetLoseGameCutsceneData(CutsceneData loseGameCutsceneData)
+	public CutsceneGameState() : base()
 	{
-		_loseGameCutsceneData = loseGameCutsceneData;
+	}
+
+	public CutsceneGameState(CutsceneData inData, string nextState, bool autoPlay=true) : base()
+	{
+		_cutscene = inData;
+		_nextState = nextState;
+		_autoPlay = autoPlay;
+	}
+
+	public void SetCutscene(CutsceneData inData)
+	{
+		_cutscene = inData;
 	}
 
 	public override void OnStateEnter()
 	{
 		base.OnStateEnter();
 
-		_loseCutscenePlaying = false;
+		_cutsceneIsPlaying = false;
 
-		UICutscenes.OnCutsceneStart += UICutscenes_OnCutsceneStart;
-		UICutscenes.OnCutsceneEnd += UICutscenes_OnCutsceneEnd;
+		UICutscenes.OnCutsceneStart += OnCutsceneStart;
+		UICutscenes.OnCutsceneEnd += OnCutsceneEnd;
 
-		if (Context.GetBattleResult() == EBattleOutcome.Lose)
+		if (_autoPlay)
 		{
-			Context.Cutscenes.RequestCutscene(_loseGameCutsceneData);
+			Context.Cutscenes.RequestCutscene(_cutscene);
 		}
 	}
 
-	private void UICutscenes_OnCutsceneStart()
+	public override void OnStateExit()
 	{
-		_loseCutscenePlaying = true;
+		base.OnStateExit();
+
+		_cutsceneIsPlaying = false;
+
+		UICutscenes.OnCutsceneStart -= OnCutsceneStart;
+		UICutscenes.OnCutsceneEnd -= OnCutsceneEnd;
 	}
 
-	private void UICutscenes_OnCutsceneEnd()
+	protected void StartCutscene()
 	{
-		Owner.RequestState("Overworld");
+		Context.Cutscenes.RequestCutscene(_cutscene);
+	}
+
+	protected virtual void OnCutsceneStart()
+	{
+		_cutsceneIsPlaying = true;
+	}
+
+	protected virtual void OnCutsceneEnd()
+	{
+		if (_nextState.Length > 0)
+		{
+			Owner.RequestState(_nextState);
+		}
+	}
+
+	protected bool IsCutscenePlaying()
+	{
+		return _cutsceneIsPlaying;
+	}
+}
+
+public class BattleResultGameState : CutsceneGameState
+{
+
+	public BattleResultGameState() : base()
+	{
+	}
+
+	public BattleResultGameState(CutsceneData data) : base(data, "Overworld", false)
+	{
+	}
+
+	public override void OnStateEnter()
+	{
+		base.OnStateEnter();
+
+		if (Context.GetBattleResult() == EBattleOutcome.Lose)
+		{
+			StartCutscene();
+		}
 	}
 
 	public override void UpdateState(float deltaTime)
 	{
 		base.UpdateState(deltaTime);
 
-		if (!_loseCutscenePlaying)
+		if (!IsCutscenePlaying())
 		{
-			Owner.RequestState("Overworld");
+			OnCutsceneEnd();
 		}
 	}
 

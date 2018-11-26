@@ -9,6 +9,7 @@ public class CutsceneData : ScriptableObject
 	public struct CutsceneDataElement
 	{
 		[SerializeField] public Sprite CutsceneSprite;
+		[Multiline(3)]
 		[SerializeField] public string CutsceneText;
 	}
 

@@ -493,6 +493,7 @@ MonoBehaviour:
   _cutscenesUI: {fileID: 1882339311}
   _overworldPlayerPrefab: {fileID: 1405119744814164, guid: e269e61594942cc4b84f741add7c1988,
     type: 2}
+  _introCutsceneData: {fileID: 11400000, guid: 4678ddd88dd96f24daf4d51efab3aeb0, type: 2}
   _loseGameCutsceneData: {fileID: 11400000, guid: 8e19b0f21541a7846b581c413a27e08b,
     type: 2}
 --- !u!4 &615050452

@@ -15,6 +15,7 @@ public class GameStateManager : MonoBehaviour
 	[SerializeField] private UIBattle _battleUI;
 	[SerializeField] private UICutscenes _cutscenesUI;
 	[SerializeField] private GameObject _overworldPlayerPrefab;
+	[SerializeField] private CutsceneData _introCutsceneData;
 	[SerializeField] private CutsceneData _loseGameCutsceneData;
 
 	private GameStateContext _gameStateContext;
@@ -27,9 +28,6 @@ public class GameStateManager : MonoBehaviour
 		_battleGameState.SetUI(_battleUI);
 		_battleGameState.SetCharacterPool(_battleCharacterPool);
 
-		_battleResultGameState = new BattleResultGameState();
-		_battleResultGameState.SetLoseGameCutsceneData(_loseGameCutsceneData);
-
 		_overworldGameState = new OverworldGameState();
 		_overworldGameState.SetPlayerPrefab(_overworldPlayerPrefab);
 
@@ -39,9 +37,10 @@ public class GameStateManager : MonoBehaviour
 
 		_gameStateMachine = new GameStateMachine(_gameStateContext);
 		_gameStateMachine.RegisterState("MainMenu", new MainMenuGameState());
+		_gameStateMachine.RegisterState("Intro", new CutsceneGameState(_introCutsceneData, "Overworld"));
 		_gameStateMachine.RegisterState("Overworld", _overworldGameState);
 		_gameStateMachine.RegisterState("Battle", _battleGameState);
-		_gameStateMachine.RegisterState("BattleResult", _battleResultGameState);
+		_gameStateMachine.RegisterState("BattleResult", new BattleResultGameState(_loseGameCutsceneData));
 
 		_gameStateMachine.RequestState("MainMenu");
 

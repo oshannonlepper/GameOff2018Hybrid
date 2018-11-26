@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f53864048456704da7f585f9dd1bd0a, type: 3}
+  m_Name: IntroCustceneData
+  m_EditorClassIdentifier: 
+  Data:
+  - CutsceneSprite: {fileID: 0}
+    CutsceneText: Next student please!
+  - CutsceneSprite: {fileID: 0}
+    CutsceneText: Welcome!
+  - CutsceneSprite: {fileID: 0}
+    CutsceneText: 'It is I, famed evolutionary researcher
+
+      Professor Darles Charwin!'
+  - CutsceneSprite: {fileID: 0}
+    CutsceneText: 'We live in a wonderous world, filled with
+
+      fantastical creatures... Or as I like to call them,'
+  - CutsceneSprite: {fileID: 0}
+    CutsceneText: animals!
+  - CutsceneSprite: {fileID: 0}
+    CutsceneText: 'Animals come in a variety of shapes and
+
+      sizes, they have all evolved and adapted
+
+      to their respective environments to survive!'
+  - CutsceneSprite: {fileID: 0}
+    CutsceneText: 'Over the years, I''ve built up some very
+
+      groundbreaking research regarding the
+
+      changes and adaptations in species over time.'
+  - CutsceneSprite: {fileID: 0}
+    CutsceneText: 'Normally, I''d be sending you and the
+
+      other students out to identify as many
+
+      of these animals as possible...'
+  - CutsceneSprite: {fileID: 0}
+    CutsceneText: '...But we''ve done plenty of that now.
+
+      You''re here for something far more radical.'
+  - CutsceneSprite: {fileID: 0}
+    CutsceneText: A little research experiment that I've decided to call...
+  - CutsceneSprite: {fileID: 0}
+    CutsceneText: '... Unnatural Selection!'
+  - CutsceneSprite: {fileID: 0}
+    CutsceneText: 'Before we begin, I''d like for you to select
+
+      a specimen. It will be the first of many companions
+
+      to join you on your journey...'
+  - CutsceneSprite: {fileID: 0}
+    CutsceneText: '... Please give some thought to its survival
+
+      qualities when choosing, that is all I ask.'
