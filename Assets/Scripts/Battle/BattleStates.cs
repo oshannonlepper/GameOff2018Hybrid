@@ -50,33 +50,121 @@ public class BattleStateStart : BattleState
 
 }
 
-public class BattleStateSelectAttack : BattleState
+public class MenuItemAction : IMenuItemSelectorItem
 {
 
+	private BattleActionInstance _action;
+
+	public BattleActionInstance Action
+	{
+		get
+		{
+			return _action;
+		}
+	}
+
+	public MenuItemAction(BattleActionInstance inAction)
+	{
+		_action = inAction;
+	}
+
+	public string GetItemLabel()
+	{
+		return _action.Label;
+	}
+
+	public int GetValue()
+	{
+		return -1;
+	}
+
+	public void OnSelect()
+	{
+
+	}
+
+}
+
+public class MenuItemCharacter : IMenuItemSelectorItem
+{
+
+	private BattleCharacterInstance _character;
+
+	public BattleCharacterInstance Character
+	{
+		get
+		{
+			return _character;
+		}
+	}
+
+	public MenuItemCharacter(BattleCharacterInstance inCharacter)
+	{
+		_character = inCharacter;
+	}
+
+	public string GetItemLabel()
+	{
+		return Character.Name;
+	}
+
+	public int GetValue()
+	{
+		return Character.ID;
+	}
+
+	public void OnSelect()
+	{
+
+	}
+
+}
+
+public class BattleStateSelectAttack : BattleState
+{
+	private MenuItemSelector _menuItemSelector;
 	private BattleCharacterInstance _currentCharacter;
-	private int _currentSelection = 0;
-	private bool _finishedChoosing = false;
+
+	public BattleStateSelectAttack() : base()
+	{
+		_menuItemSelector = new MenuItemSelector();
+	}
 
 	public override void OnStateEnter()
 	{
 		base.OnStateEnter();
-
+		
 		_currentCharacter = Context.GetCharacterByID(Context.GetCurrentTurnCharacterID());
-		_finishedChoosing = false;
 
 		if (!_currentCharacter.IsAIControlled)
 		{
-			PrintAttacks();
+			_menuItemSelector.OnItemSelected += OnMenuItemSelected;
+
+			int numActions = _currentCharacter.GetNumActions();
+			for (int actionIndex = 0; actionIndex < numActions; ++actionIndex)
+			{
+				_menuItemSelector.AddItem(new MenuItemAction(_currentCharacter.GetAction(actionIndex)));
+			}
 		}
+	}
+
+	private void OnMenuItemSelected(int index, int value=-1)
+	{
+		Context.SetCurrentAction(index);
+		Owner.RequestState("SelectTarget");
 	}
 
 	public override void OnStateExit()
 	{
 		base.OnStateExit();
 
+		if (!_currentCharacter.IsAIControlled)
+		{
+			_menuItemSelector.OnItemSelected -= OnMenuItemSelected;
+			_menuItemSelector.Reset();
+		}
+
 		_currentCharacter = null;
-		_currentSelection = 0;
-		_finishedChoosing = false;
 	}
 
 	public override void UpdateState(float deltaTime)
@@ -85,86 +173,28 @@ public class BattleStateSelectAttack : BattleState
 
 		if (_currentCharacter.IsAIControlled)
 		{
-			// do something crazy to pick a good result
+			// TODO - do something crazy to pick a good result
 			int numActions = _currentCharacter.GetNumActions();
-			_currentSelection = Random.Range(0, numActions);
-			_finishedChoosing = true;
+			OnMenuItemSelected(Random.Range(0, numActions));
 		}
 		else
 		{
-			// change attack selection inputs
-
-			bool refresh = false;
-
-			if (Input.GetKeyDown(KeyCode.UpArrow))
-			{
-				if (_currentSelection > 0)
-				{
-					--_currentSelection;
-				}
-
-				refresh = true;
-			}
-
-			if (Input.GetKeyDown(KeyCode.DownArrow))
-			{
-				if (_currentSelection < _currentCharacter.GetNumActions() - 1)
-				{
-					++_currentSelection;
-				}
-
-				refresh = true;
-			}
-
-			if (refresh)
-			{
-				PrintAttacks();
-			}
-
-			// confirm selection(s)
-
-			if (Input.GetKeyDown(KeyCode.Space))
-			{
-				_finishedChoosing = true;
-			}
-		}
-
-		if (_finishedChoosing)
-		{
-			Debug.Log("Selecting action = " + _currentCharacter.GetActionLabel(_currentSelection));
-			Context.SetCurrentAction(_currentSelection);
-			Owner.RequestState("SelectTarget");
+			_menuItemSelector.Update(deltaTime);
 		}
 	}
-
-	private void PrintAttacks()
-	{
-		string printString = "";
-		int numActions = _currentCharacter.GetNumActions();
-		for (int index = 0; index < numActions; ++index)
-		{
-			if (index == _currentSelection)
-			{
-				printString += "> ";
-			}
-			printString += _currentCharacter.GetActionLabel(index) + '\n';
-		}
-		Debug.Log(printString);
-		Debug.Log("Choose an action (up and down arrow keys).");
-	}
-
 }
 
 public class BattleStateSelectTarget : BattleState
 {
+	private MenuItemSelector _menuItemSelector;
+
 	private List<int> _characterIDPool;
 	private BattleCharacterInstance _currentCharacter;
-	private int _currentSelection = 0;
-	private bool _finishedChoosing = false;
-	private int _numTargets = 0;
 
-	public BattleStateSelectTarget()
+	public BattleStateSelectTarget() : base()
 	{
+		_menuItemSelector = new MenuItemSelector();
+
 		_characterIDPool = new List<int>();
 	}
 
@@ -174,17 +204,25 @@ public class BattleStateSelectTarget : BattleState
 
 		_currentCharacter = Context.GetCharacterByID(Context.GetCurrentTurnCharacterID());
 
-		_numTargets = Context.GetNumCharacters();
-		for (int index = 0; index < _numTargets; ++index)
-		{
-			_characterIDPool.Add(Context.GetCharacterByIndex(index).ID);
-		}
-
-		_finishedChoosing = false;
+		int numCharacters = Context.GetNumCharacters();
 
 		if (!_currentCharacter.IsAIControlled)
 		{
-			PrintTargets();
+			// TODO - action should have a way of returning valid targets - assume all targets viable for all actions for now
+			_menuItemSelector.OnItemSelected += OnMenuItemSelected;
+
+			for (int index = 0; index < numCharacters; ++index)
+			{
+				MenuItemCharacter characterItem = new MenuItemCharacter(Context.GetCharacterByIndex(index));
+				_menuItemSelector.AddItem(characterItem);
+			}
+		}
+		else
+		{
+			for (int index = 0; index < numCharacters; ++index)
+			{
+				_characterIDPool.Add(Context.GetCharacterByIndex(index).ID);
+			}
 		}
 	}
 
@@ -192,11 +230,17 @@ public class BattleStateSelectTarget : BattleState
 	{
 		base.OnStateExit();
 
-		_characterIDPool.Clear();
-		_currentCharacter = null;
-		_currentSelection = 0;
-		_finishedChoosing = false;
-		_numTargets = 0;
+		if (!_currentCharacter.IsAIControlled)
+		{
+			_menuItemSelector.Reset();
+			_menuItemSelector.OnItemSelected -= OnMenuItemSelected;
+		}
+	}
+
+	private void OnMenuItemSelected(int index, int value)
+	{
+		Context.SetCurrentTarget(value);
+		Owner.RequestState("ResolveAttack");
 	}
 
 	public override void UpdateState(float deltaTime)
@@ -207,81 +251,14 @@ public class BattleStateSelectTarget : BattleState
 		{
 			List<int> targets = _characterIDPool.FindAll(x => x != _currentCharacter.ID);
 			// do something crazy to pick a good result
-			_currentSelection = targets[Random.Range(0, targets.Count)]; // please don't hit yourself please
-			_finishedChoosing = true;
+			int index = Random.Range(0, targets.Count);
+			Debug.Log(targets.Count + ", " + index);
+			OnMenuItemSelected(index, targets[index]); // please don't hit yourself please
 		}
 		else
 		{
-			// change attack selection inputs
-
-			bool refresh = false;
-
-			if (Input.GetKeyDown(KeyCode.UpArrow))
-			{
-				if (_currentSelection > 0)
-				{
-					--_currentSelection;
-				}
-				refresh = true;
-			}
-
-			if (Input.GetKeyDown(KeyCode.DownArrow))
-			{
-				if (_currentSelection < _numTargets - 1)
-				{
-					++_currentSelection;
-				}
-				refresh = true;
-			}
-
-			if (refresh)
-			{
-				PrintTargets();
-			}
-
-			// confirm selection(s)
-
-			if (Input.GetKeyDown(KeyCode.Space))
-			{
-				_finishedChoosing = true;
-			}
+			_menuItemSelector.Update(deltaTime);
 		}
-
-		if (_finishedChoosing)
-		{
-			Debug.Log("Selecting target = " + Context.GetCharacterByID(_characterIDPool[_currentSelection]).ToString());
-
-			// validate target ??
-
-			// if ok, confirm and move on to attacks
-
-			Context.SetCurrentTarget(_characterIDPool[_currentSelection]);
-			Owner.RequestState("ResolveAttack");
-		}
-	}
-	
-	void PrintTargets()
-	{
-		string printString = "";
-		foreach (int ID in _characterIDPool)
-		{
-			BattleCharacterInstance character = Context.GetCharacterByID(ID);
-
-			if (ID == _characterIDPool[_currentSelection])
-			{
-				printString += "> ";
-			}
-			printString += character.ToString();
-
-			if (ID == _currentCharacter.ID)
-			{
-				printString += " (Yourself)";
-			}
-
-			printString += '\n';
-		}
-		Debug.Log(printString);
-		Debug.Log("Choose a target (up and down arrow keys).");
 	}
 
 }

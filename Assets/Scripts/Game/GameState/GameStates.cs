@@ -135,7 +135,9 @@ public class BattleGameState : GameState
 	public void SetCharacterPool(List<BattleCharacterData> inCharacters)
 	{
 		_characterPool = inCharacters;
-		_playerCharacters.Add(MakeRandomCharacterInstance());
+		BattleCharacterInstance character = MakeRandomCharacterInstance();
+		character.IsAIControlled = false;
+		_playerCharacters.Add(character);
 	}
 
 	public void SetUI(UIBattle inBattleUI)
