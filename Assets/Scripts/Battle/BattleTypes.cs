@@ -81,6 +81,7 @@ public interface IBattleListener
 	void OnAttributeChanged(BattleCharacterInstance character, string attribute, float oldValue, float newValue);
 	void OnCharacterLose(BattleCharacterInstance character);
 	void OnActiveCharacterChange(BattleCharacterInstance character, int team);
+	void OnPlayerMenuRequested(MenuItemSelector menu);
 
 }
 
@@ -133,6 +134,14 @@ public class BattleEventDispatcher
 		foreach (IBattleListener listener in _listeners)
 		{
 			listener.OnActiveCharacterChange(character, team);
+		}
+	}
+
+	public void RequestMenu(MenuItemSelector menu)
+	{
+		foreach (IBattleListener listener in _listeners)
+		{
+			listener.OnPlayerMenuRequested(menu);
 		}
 	}
 
@@ -389,6 +398,11 @@ public class BattleContext
 	public void CharacterLose(BattleCharacterInstance character)
 	{
 		_battleEventDispatcher.CharacterLose(character);
+	}
+
+	public void RequestMenu(MenuItemSelector menu)
+	{
+		_battleEventDispatcher.RequestMenu(menu);
 	}
 
 }

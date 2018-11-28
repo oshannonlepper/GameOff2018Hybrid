@@ -7,6 +7,7 @@ public class UIBattle : MonoBehaviour, IBattleListener {
 	[SerializeField] private UIHealthDisplay _enemyHealthDisplay;
 	[SerializeField] private UIHealthDisplay _playerHealthDisplay;
 	[SerializeField] private UIBattleText _battleText;
+	[SerializeField] private UIBattleMenu _battleMenu;
 
 	private BattleContext _currentContext = null;
 
@@ -33,16 +34,6 @@ public class UIBattle : MonoBehaviour, IBattleListener {
 		{
 			_currentContext.AddListener(this);
 		}
-	}
-
-	public void SetEnemy(BattleCharacterInstance character)
-	{
-		_enemyHealthDisplay.SetCharacter(character);
-	}
-
-	public void SetPlayer(BattleCharacterInstance character)
-	{
-		_playerHealthDisplay.SetCharacter(character);
 	}
 
 	public void OnActionPerformed(BattleCharacterInstance attacker, BattleCharacterInstance target, BattleActionInstance action)
@@ -83,4 +74,11 @@ public class UIBattle : MonoBehaviour, IBattleListener {
 			}
 		}
 	}
+
+	public void OnPlayerMenuRequested(MenuItemSelector menu)
+	{
+		_battleMenu.SetMenu(menu);
+		_battleText.QueueText(menu.GetCaption());
+	}
+
 }

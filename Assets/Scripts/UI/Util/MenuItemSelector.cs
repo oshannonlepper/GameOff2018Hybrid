@@ -20,13 +20,25 @@ public enum EMenuItemNavigateMode
 // List of items that are navigable + selectable via arrow keys + space bar
 public class MenuItemSelector
 {
+	// events for selection + navigation
 	public delegate void MenuItemSelectorEvent(int index, int value);
 	public event MenuItemSelectorEvent OnItemSelected;
+	public event MenuItemSelectorEvent OnSelectedItemChanged;
 
+	// list of elements added to the menu
 	private List<IMenuItemSelectorItem> _itemList;
+
+	// If true, navigating to the end of the menu will send you back to the start and vice versa
+	// If false, trying to navigate past either end does nothing
 	private bool _wrapAround = false;
+
+	// Index of the current selected item
 	private int _index = 0;
 
+	// Message to appear to the player when faced with this menu
+	private string _menuCaption = "";
+
+	// Keys to be pressed for navigating the menu, updated by SetNavigateMode
 	private KeyCode _previousItemKey;
 	private KeyCode _nextItemKey;
 
@@ -34,6 +46,11 @@ public class MenuItemSelector
 	{
 		_itemList = new List<IMenuItemSelectorItem>();
 		SetNavigateMode(EMenuItemNavigateMode.TopToBottom);
+	}
+
+	public void SetCaption(string caption)
+	{
+		_menuCaption = caption;
 	}
 
 	public void SetNavigateMode(EMenuItemNavigateMode inNavigateMode)
@@ -59,6 +76,8 @@ public class MenuItemSelector
 
 		if (Input.GetKeyDown(_nextItemKey))
 		{
+			int oldIndex = _index;
+
 			if (_index >= _itemList.Count - 1)
 			{
 				if (_wrapAround)
@@ -71,11 +90,16 @@ public class MenuItemSelector
 				++_index;
 			}
 
-			Debug.Log("MenuItemSelector Changed: " + _index + ", " + _itemList[_index].GetItemLabel());
+			if (oldIndex != _index && OnSelectedItemChanged != null)
+			{
+				OnSelectedItemChanged(_index, _itemList[_index].GetValue());
+			}
 		}
 
 		if (Input.GetKeyDown(_previousItemKey))
 		{
+			int oldIndex = _index;
+
 			if (_index <= 0)
 			{
 				if (_wrapAround)
@@ -88,7 +112,10 @@ public class MenuItemSelector
 				--_index;
 			}
 
-			Debug.Log("MenuItemSelector Changed: " + _index + ", " + _itemList[_index].GetItemLabel());
+			if (oldIndex != _index && OnSelectedItemChanged != null)
+			{
+				OnSelectedItemChanged(_index, _itemList[_index].GetValue());
+			}
 		}
 
 		if (Input.GetKeyDown(KeyCode.Space))
@@ -126,6 +153,16 @@ public class MenuItemSelector
 	public string GetLabel(int index)
 	{
 		return _itemList[index].GetItemLabel();
+	}
+
+	public int GetSelectedIndex()
+	{
+		return _index;
+	}
+
+	public string GetCaption()
+	{
+		return _menuCaption;
 	}
 
 }

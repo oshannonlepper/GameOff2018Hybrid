@@ -128,6 +128,7 @@ public class BattleStateSelectAttack : BattleState
 	public BattleStateSelectAttack() : base()
 	{
 		_menuItemSelector = new MenuItemSelector();
+		_menuItemSelector.SetCaption("What will you do?");
 	}
 
 	public override void OnStateEnter()
@@ -145,6 +146,8 @@ public class BattleStateSelectAttack : BattleState
 			{
 				_menuItemSelector.AddItem(new MenuItemAction(_currentCharacter.GetAction(actionIndex)));
 			}
+
+			Context.RequestMenu(_menuItemSelector);
 		}
 	}
 
@@ -194,6 +197,7 @@ public class BattleStateSelectTarget : BattleState
 	public BattleStateSelectTarget() : base()
 	{
 		_menuItemSelector = new MenuItemSelector();
+		_menuItemSelector.SetCaption("Now choose a target...");
 
 		_characterIDPool = new List<int>();
 	}
@@ -216,6 +220,8 @@ public class BattleStateSelectTarget : BattleState
 				MenuItemCharacter characterItem = new MenuItemCharacter(Context.GetCharacterByIndex(index));
 				_menuItemSelector.AddItem(characterItem);
 			}
+
+			Context.RequestMenu(_menuItemSelector);
 		}
 		else
 		{
